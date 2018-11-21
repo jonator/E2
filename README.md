@@ -1,17 +1,12 @@
-# E2
-A Simple, Scalable and Easy starting point for full stack web development using JavaScript and Elm.
-
-[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-<br><br>
-
-Please read the related blog post: [E2: Elm + Express for full-stack web development](http://nick.balestra.ch/2016/E2-full-stack-web-development-with-elm-and-express/) to know more about this stack and its relative boilerplate.
+# Group 8 Project
 
 **NOTE!** Use the latest version of Node, 6.x.x.
 
 ## Installation
 
 1. `git clone`
-2. `npm install`
+2. `cd`
+3. `npm install`
 
 ## Usage
 ### Development workflow - Hot reload
@@ -51,9 +46,3 @@ A dummy `http://localhost:3000/color` endpoint is provided as reference. The end
 ### Elm-format, Standards JS and Precommit hook
   [Elm-format](https://github.com/avh4/elm-format) will take care of everything related to elm. For anything javascript related we'll rely on [standardJS](https://github.com/feross/standard).
   On `npm test` standard will check every .js file inside the `/server` and `/src` directories making sure they all comply to the standard javascript style.
-
-***
-
-## Elm by default
-The project runs with Elm by default and hot replacement of changes to the modules. Currently it is on 0.17.1
-A dummy Elm app, that consume the server API is provided as an example.
