@@ -3,7 +3,7 @@ module View exposing (view)
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events exposing (..)
-import Types exposing (Model, Msg(..), Page(..), User)
+import Types exposing (Card, Model, Msg(..), Page(..), User)
 
 
 view : Model -> Html Msg
@@ -16,14 +16,9 @@ view model =
 
 header : Maybe User -> Html Msg
 header mUser =
-    case mUser of
-        Just user ->
-            div [ Attrs.class "header" ]
-                []
-
-        Nothing ->
-            div [ Attrs.class "header" ]
-                []
+    div [ Attrs.class "header" ]
+        [ text "Cheeky Beak Card Company"
+        ]
 
 
 content : Page -> Html Msg
@@ -33,14 +28,27 @@ content page =
             case page of
                 Homepage cardList ->
                     div [ Attrs.class "cards" ] <|
-                        List.map
-                            (\x ->
-                                div [ Attrs.class "card" ]
-                                    [ text <| toString x.cardId, text x.title ]
-                            )
-                            cardList
+                        List.map card cardList
 
                 _ ->
                     div [] [ text "Other page!" ]
     in
     div [ Attrs.class "content" ] [ content ]
+
+
+card : Card -> Html Msg
+card c =
+    div [ Attrs.class "card" ]
+        [ div [ Attrs.class "info" ]
+            [ div [ Attrs.class "id" ]
+                [ text <| toString c.cardId ]
+            , div [ Attrs.class "title" ]
+                [ text c.title ]
+            , div [ Attrs.class "cost" ]
+                [ text <| String.append "$" <| toString c.cost ]
+            , div [ Attrs.class "category" ]
+                [ text c.category ]
+            ]
+        , div [ Attrs.class "image" ]
+            [ img [ Attrs.src c.imageUrl ] [] ]
+        ]

@@ -1,6 +1,7 @@
 body {
   height: 100vh;
   margin: 0;
+  font-family: cursive;
 }
 
 .main {
@@ -11,10 +12,13 @@ body {
 
 .header {
   background-color: lightblue;
+  text-align: center;
+  padding-top: 10px;
+  font-size: 30px;
 }
 
 .content {
-  width: 75%;
+  width: 60%;
   margin: 0 auto;
   height: calc(100vh - 70px);
   overflow-y: auto;
@@ -26,5 +30,12 @@ body {
 }
 
 .card {
-  height: 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: lighten(lightblue, 20);
+
+  .info {
+    padding: 20px;
+    display: grid;
+  }
 }
