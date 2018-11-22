@@ -18,4 +18,4 @@ main =
 
 initialModel : Model
 initialModel =
-    Model "#FFFFFF"
+    { user = Nothing, page = Loading }
