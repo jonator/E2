@@ -1,11 +1,11 @@
-module Decoders exposing (cardList)
+module Coders exposing (decodeCardList)
 
 import Json.Decode as JD exposing (Decoder, field, int, string)
 import Types exposing (Card)
 
 
-card : Decoder Card
-card =
+decodeCard : Decoder Card
+decodeCard =
     JD.map5 Card
         (field "cardId" int)
         (field "title" string)
@@ -14,6 +14,6 @@ card =
         (field "category" string)
 
 
-cardList : Decoder (List Card)
-cardList =
-    JD.list card
+decodeCardList : Decoder (List Card)
+decodeCardList =
+    JD.list decodeCard

@@ -1,4 +1,4 @@
-module Types exposing (Card, Model, Msg(..), Page(..))
+module Types exposing (Card, Model, Msg(..), Page(..), User)
 
 
 type alias Model =
@@ -66,5 +66,4 @@ type alias OrderLine =
 
 
 type Msg
-    = ChangeColor
-    | HandleNewCards Result String (List Card)
+    = HandleCards (Result String (List Card))

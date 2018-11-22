@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Html
+import Requests
 import Types exposing (Model, Msg(..), Page(..))
 import Update exposing (update)
 import View exposing (view)
@@ -11,7 +12,7 @@ main =
     Html.program
         { view = view
         , update = update
-        , init = ( initialModel, Cmd.none )
+        , init = ( initialModel, Requests.getCards HandleCards )
         , subscriptions = \_ -> Sub.none
         }
 

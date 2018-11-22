@@ -1,6 +1,6 @@
 module Requests exposing (getCards)
 
-import Decoders
+import Coders
 import Http exposing (Error(..))
 import Types exposing (Card, Msg(..))
 
@@ -15,10 +15,6 @@ apiPath =
 
 fullPath =
     authority ++ apiPath
-
-
-getCardsUrl =
-    fullPath ++ "cards"
 
 
 httpErrToString : Http.Error -> String
@@ -52,5 +48,5 @@ processResult message res =
 
 getCards : (Result String (List Card) -> msg) -> Cmd msg
 getCards hook =
-    Http.get getCardsUrl Decoders.cardList
+    Http.get (fullPath ++ "cards") Coders.decodeCardList
         |> Http.send (processResult hook)
