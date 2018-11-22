@@ -8,9 +8,4 @@ import Types exposing (Model, Msg(..))
 
 view : Model -> Html Msg
 view model =
-    div [ class "container", style [ ( "height", "100%" ), ( "background-color", model.color ) ] ]
-        [ div [ class "actions" ]
-            [ button [ class "btn", onClick ChangeColor ]
-                [ span [] [ text "Elm, Gimme Colors!" ] ]
-            ]
-        ]
+    div [] [ text "Hello World" ]

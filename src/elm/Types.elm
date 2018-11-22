@@ -1,6 +1,4 @@
-module Types exposing (Card, Model, Msg(..))
-
-import Http
+module Types exposing (Card, Model, Msg(..), Page(..))
 
 
 type alias Model =
@@ -69,5 +67,4 @@ type alias OrderLine =
 
 type Msg
     = ChangeColor
-    | HandleNewCards (List Card)
-    | HandleHttpError Http.Error
+    | HandleNewCards Result String (List Card)
