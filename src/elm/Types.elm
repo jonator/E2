@@ -1,4 +1,4 @@
-module Types exposing (Model, Msg(..))
+module Types exposing (Card, Model, Msg(..))
 
 import Http
 
