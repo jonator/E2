@@ -4,15 +4,19 @@ import Coders
 import Http exposing (Error(..))
 import Types exposing (Card, Msg(..))
 
+--https://package.elm-lang.org/packages/elm-lang/core/1.0.0/Http
 
+authority : String
 authority =
     "http://localhost:3000/"
 
 
+apiPath : String
 apiPath =
     "api/"
 
 
+fullPath : String
 fullPath =
     authority ++ apiPath
 
