@@ -1,4 +1,6 @@
-module Types exposing (Card, Model, Msg(..), Page(..), User)
+module Types exposing (Card, CartItem, Model, Msg(..), Page(..), User)
+
+import Dict exposing (Dict)
 
 
 type alias Model =
@@ -11,6 +13,7 @@ type alias User =
     { userId : Int
     , firstName : String
     , lastName : String
+    , cart : Dict CardId (CartItem Card)
     }
 
 
@@ -19,7 +22,7 @@ type Page
     | SignIn
     | Homepage (List Card)
     | CardView Card
-    | CartView (List (CartItem Card))
+    | CartView
     | AdminPage TotalSales OrderCount (List Order) TotalProfit
 
 
@@ -50,6 +53,26 @@ type alias TotalProfit =
     Int
 
 
+type alias Email =
+    String
+
+
+type alias FirstName =
+    String
+
+
+type alias LastName =
+    String
+
+
+type alias Password =
+    String
+
+
+type alias CardId =
+    Int
+
+
 type alias Order =
     { orderId : Int
     , user : User
@@ -67,3 +90,9 @@ type alias OrderLine =
 
 type Msg
     = HandleCards (Result String (List Card))
+    | ClickCard Card
+    | ClickTitleText
+    | ClickSignIn
+    | Authenticate Email Password
+    | Register FirstName LastName Email Password
+    | ClickAddToCart Card

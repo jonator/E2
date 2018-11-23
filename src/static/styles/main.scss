@@ -10,11 +10,28 @@ body {
   grid-template-rows: 75px 1fr;
 }
 
+.button {
+  font-size: 20px;
+  border-width: 4px;
+  border-radius: 2px;
+  text-align: center;
+  background: white;
+  padding-top: 20px;
+  cursor: pointer;
+}
+
 .header {
   background-color: lightblue;
-  text-align: center;
-  padding-top: 10px;
   font-size: 30px;
+  display: grid;
+  grid-template-columns: 9fr 1fr;
+}
+
+.title-text {
+  cursor: pointer;
+  :hover {
+    color: white;
+  }
 }
 
 .content {
@@ -33,6 +50,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   background-color: lighten(lightblue, 20);
+  cursor: pointer;
 
   .info {
     padding: 20px;
