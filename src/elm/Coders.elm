@@ -1,4 +1,4 @@
-module Coders exposing (decodeCardList, decodeCartItemList, decodeCartItem, decodeCard, ApiCartItem, apiCartItemToElmCartItem, encodeCard)
+module Coders exposing (..)
 
 import Json.Decode as JD exposing (Decoder, field, int, string)
 import Json.Encode as JE exposing (object, int, string, Value)
@@ -50,10 +50,51 @@ apiCartItemToElmCartItem : ApiCartItem -> CartItem Card
 apiCartItemToElmCartItem apiCartItem = 
     CartItem apiCartItem.quantity (Card apiCartItem.cardId apiCartItem.title apiCartItem.imageUrl apiCartItem.cost apiCartItem.category)
 
-encodeCard : Int -> Int -> Int -> Value
-encodeCard userId cardId quantity =
+encodeCartItem : Int -> Int -> Int -> Value
+encodeCartItem userId cardId quantity =
     object 
         [ ("userId",JE.int userId)
         , ("cardId",JE.int cardId)
         , ("quantity",JE.int quantity)
+        ]
+
+encodeUser : String -> String -> String -> String -> Bool -> Value
+encodeUser firstName lastName email password isAdmin =
+    object 
+        [ ("firstName",JE.string firstName)
+        , ("lastName",JE.string lastName)
+        , ("email",JE.string email)
+        , ("password",JE.string password)
+        , ("isAdmin", JE.bool isAdmin)
+        ]
+
+encodeNewCard :  String -> String -> Int -> String -> Int -> Value
+encodeNewCard title imageUrl cost category userId = 
+    object
+        [
+            ("card", 
+                object 
+                    [ ("title",JE.string title)
+                    , ("imageUrl",JE.string imageUrl)
+                    , ("cost",JE.int cost)
+                    , ("category",JE.string category)
+                    ]
+            ),
+            ("userId", JE.int userId)
+        ]
+
+encodeUpdatedCard : Int -> String -> String -> Int -> String -> Int -> Value
+encodeUpdatedCard cardId title imageUrl cost category userId = 
+    object
+        [
+            ("card", 
+                object 
+                    [ ("cardId",JE.int cardId)
+                    , ("title",JE.string title)
+                    , ("imageUrl",JE.string imageUrl)
+                    , ("cost",JE.int cost)
+                    , ("category",JE.string category)
+                    ]
+            ),
+            ("userId", JE.int userId)
         ]

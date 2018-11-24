@@ -1,6 +1,6 @@
 module Requests exposing (getCards, getCartItems, getCartItem)
 
-import Coders exposing (ApiCartItem, apiCartItemToElmCartItem, encodeCard)
+import Coders exposing (..)
 import Json.Decode as JD
 import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString)
 import Types exposing (Card, CartItem, Msg(..))
@@ -55,12 +55,22 @@ getCards hook =
     Http.get (fullPath ++ "cards") Coders.decodeCardList
         |> Http.send (processResult hook)
 
+createCard : String -> String -> Int -> String -> Int -> ((Result String String) -> msg) -> Cmd msg
+createCard title imageUrl cost category userId hook =
+    Http.post (fullPath ++ "users") (jsonBody <| encodeNewCard title imageUrl cost category userId) JD.string
+        |> Http.send (processResult hook)
+
+updateCard : Int -> String -> String -> Int -> String -> Int -> ((Result String String) -> msg) -> Cmd msg
+updateCard cardId title imageUrl cost category userId hook =
+    Http.post (fullPath ++ "users") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost category userId) JD.string
+        |> Http.send (processResult hook)
 
 --User
 authenticateUser : String -> String -> (Result String String -> msg) -> Cmd msg
 authenticateUser username password hook =
     Http.get (fullPath ++ "users/authenticate/" ++ username ++ "/" ++ password) JD.string
         |> Http.send (processResult hook)
+
 
 
 --Cart
@@ -104,12 +114,17 @@ deleteCartItem cartId cardId hook =
 
 createCartItem : Int -> Int -> Int -> ((Result String String) -> msg) -> Cmd msg
 createCartItem userId cardId quantity hook =
-    Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCard userId cardId quantity) JD.string
+    Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) JD.string
         |> Http.send (processResult hook)
 
 updateCartItem : Int -> Int -> Int -> ((Result String String) -> msg) -> Cmd msg
 updateCartItem userId cardId quantity hook =
-    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCard userId cardId quantity)
+    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity)
+        |> Http.send (processResult hook)
+
+createUser : String -> String -> String -> String -> Bool -> ((Result String String) -> msg) -> Cmd msg
+createUser firstName lastName email password isAdmin hook =
+    Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password isAdmin) JD.string
         |> Http.send (processResult hook)
 
 --Resquest Types
