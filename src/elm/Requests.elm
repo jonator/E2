@@ -1,8 +1,8 @@
 module Requests exposing (getCards, getCartItems, getCartItem)
 
-import Coders exposing (ApiCartItem,apiCartItemToElmCartItem)
+import Coders exposing (ApiCartItem, apiCartItemToElmCartItem, encodeCard)
 import Json.Decode as JD
-import Http exposing (Error(..), emptyBody, Request, Body, request, expectString)
+import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString)
 import Types exposing (Card, CartItem, Msg(..))
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
 authority : String
@@ -61,9 +61,9 @@ authenticateUser : String -> String -> (Result String String -> msg) -> Cmd msg
 authenticateUser username password hook =
     Http.get (fullPath ++ "users/authenticate/" ++ username ++ "/" ++ password) JD.string
         |> Http.send (processResult hook)
+
+
 --Cart
-
-
 processCartResult : (Result String (List (CartItem Card)) -> msg) -> Result Http.Error (List ApiCartItem) -> msg
 processCartResult message res =
     case res of
@@ -102,6 +102,11 @@ deleteCartItem cartId cardId hook =
     deleteRequest (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
         |> Http.send (processResult hook)
 
+createCartItem : Int -> Int -> Int -> ((Result String String) -> msg) -> Cmd msg
+createCartItem userId cardId quantity hook =
+    Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCard userId cardId quantity) JD.string
+        |> Http.send (processResult hook)
+
 
 
 --Resquest Types
@@ -117,15 +122,14 @@ deleteRequest url =
     , withCredentials = False
     }
 
---Resquest Types
--- putRequest : String -> Body -> Request ()
--- putRequest url body =
---   request
---     { method = "PUT"
---     , headers = []
---     , url = url
---     , body = body
---     , expect = expectStringResponse (\_ -> Ok ())
---     , timeout = Nothing
---     , withCredentials = False
---     }
+putRequest : String -> Body -> Request String
+putRequest url body =
+  request
+    { method = "PUT"
+    , headers = []
+    , url = url
+    , body = body
+    , expect = expectString
+    , timeout = Nothing
+    , withCredentials = False
+    }
