@@ -138,3 +138,21 @@ body {
     font-size: 30px;
   }
 }
+
+.admin-actions {
+  padding: 50px 200px;
+  display: grid;
+  grid-gap: 30px;
+  width: 500px;
+  justify-content: center;
+
+  .edit-card-wrapper {
+    display: inline-flex;
+    justify-content: space-between;
+  }
+
+  .delete-card-wrapper {
+    display: inline-flex;
+    justify-content: space-between;
+  }
+}

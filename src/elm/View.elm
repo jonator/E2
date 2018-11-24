@@ -221,27 +221,29 @@ adminPage totalSales orderCount orderList totalProfit editId delId =
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
         , div [ Attrs.class "admin-actions" ]
-            [ div
+            [ text "Admin actions:"
+            , div
                 [ Attrs.class "create-card-btn button"
                 , onClick <| AuthenticatedMsgs <| ClickCreateCard
                 ]
                 [ text "Create new card" ]
             , div [ Attrs.class "edit-card-wrapper" ]
-                [ input
+                [ text "ID: "
+                , input
                     [ Attrs.class "edit-card-input input"
-                    , Attrs.placeholder "card id"
                     , onInput <| AuthenticatedMsgs << TypeEditCardId
+                    , Attrs.value <| toString editId
                     ]
                     []
                 , div
                     [ Attrs.class "edit-card-btn button"
                     , onClick <| AuthenticatedMsgs ClickEditCard
-                    , Attrs.value <| toString editId
                     ]
                     [ text "Edit card" ]
                 ]
             , div [ Attrs.class "delete-card-wrapper" ]
-                [ input
+                [ text "ID: "
+                , input
                     [ Attrs.class "delete-card-input input"
                     , onInput <| AuthenticatedMsgs << TypeDeleteCardId
                     , Attrs.value <| toString delId
