@@ -2,7 +2,7 @@ module Requests exposing (getCards, getCartItems, getCartItem)
 
 import Coders exposing (ApiCartItem,apiCartItemToElmCartItem)
 import Json.Decode as JD
-import Http exposing (Error(..), emptyBody, request, expectStringResponse)
+import Http exposing (Error(..), emptyBody, Request, Body, request, expectString)
 import Types exposing (Card, CartItem, Msg(..))
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
 authority : String
@@ -73,11 +73,6 @@ processCartResult message res =
         Err httpErr ->
             message <| Err <| httpErrToString httpErr
 
-getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
-getCartItems cartId hook =
-    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
-        |> Http.send (processCartResult hook)
-
 processCartItemResult : ((Result String (CartItem Card)) -> msg) -> Result Http.Error ApiCartItem -> msg
 processCartItemResult message res =
     case res of
@@ -87,26 +82,50 @@ processCartItemResult message res =
         Err httpErr ->
             message <| Err <| httpErrToString httpErr
 
+getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
+getCartItems cartId hook =
+    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
+        |> Http.send (processCartResult hook)
 
 getCartItem : Int -> Int -> ((Result String (CartItem Card)) -> msg) -> Cmd msg
 getCartItem cartId cardId hook =
     Http.get (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId)) Coders.decodeCartItem 
         |> Http.send (processCartItemResult hook)
 
-deleteCartItems Int -> (Result String String) -> msg) -> Cmd msg
+deleteCartItems : Int -> ((Result String String) -> msg) -> Cmd msg
 deleteCartItems cartId hook =
-    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
-        |> Http.send (processCartResult hook)
+    deleteRequest (fullPath ++ "cartItems/" ++ (toString cartId))
+        |> Http.send (processResult hook)
+
+deleteCartItem : Int -> Int -> ((Result String String) -> msg) -> Cmd msg
+deleteCartItem cartId cardId hook =
+    deleteRequest (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
+        |> Http.send (processResult hook)
 
 
-delete : String -> Request ()
-delete url =
+
+--Resquest Types
+deleteRequest : String -> Request String
+deleteRequest url =
   request
     { method = "DELETE"
     , headers = []
     , url = url
     , body = emptyBody
-    , expect = expectStringResponse (\_ -> Ok ())
+    , expect = expectString
     , timeout = Nothing
     , withCredentials = False
     }
+
+--Resquest Types
+-- putRequest : String -> Body -> Request ()
+-- putRequest url body =
+--   request
+--     { method = "PUT"
+--     , headers = []
+--     , url = url
+--     , body = body
+--     , expect = expectStringResponse (\_ -> Ok ())
+--     , timeout = Nothing
+--     , withCredentials = False
+--     }
