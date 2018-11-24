@@ -1,6 +1,7 @@
-module Types exposing (Card, CartItem, Model, Msg(..), Page(..), User)
+module Types exposing (Card, CartItem, Model, Msg(..), AuthMsg(..), Page(..), User)
 
 import Dict exposing (Dict)
+import SignIn
 
 
 type alias Model =
@@ -19,7 +20,7 @@ type alias User =
 
 type Page
     = Loading
-    | SignIn
+    | SignIn RedirectPage SignIn.Model
     | Homepage (List Card)
     | CardView Card
     | CartView
@@ -53,10 +54,6 @@ type alias TotalProfit =
     Int
 
 
-type alias Email =
-    String
-
-
 type alias FirstName =
     String
 
@@ -65,12 +62,12 @@ type alias LastName =
     String
 
 
-type alias Password =
-    String
-
-
 type alias CardId =
     Int
+
+
+type alias RedirectPage =
+    Page
 
 
 type alias Order =
@@ -90,9 +87,16 @@ type alias OrderLine =
 
 type Msg
     = HandleCards (Result String (List Card))
+    | SignInMsgs SignIn.SignInMsg
     | ClickCard Card
     | ClickTitleText
     | ClickSignIn
-    | Authenticate Email Password
-    | Register FirstName LastName Email Password
-    | ClickAddToCart Card
+    | AuthenticatedMsgs AuthMsg
+
+
+
+--Event that requires user to be authenticated
+
+
+type AuthMsg
+    = ClickAddToCart Card

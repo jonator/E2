@@ -2,7 +2,8 @@ module Update exposing (update)
 
 import Dict
 import Requests exposing (..)
-import Types exposing (Card, CartItem, Model, Msg(..), Page(..), User)
+import Types exposing (Card, CartItem, Model, Msg(..), AuthMsg(..), Page(..), User)
+import SignIn exposing (SignInMsg(..))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -20,24 +21,45 @@ update msg model =
         ClickTitleText ->
             { model | page = Loading } ! [ getCards HandleCards ]
 
-        ClickAddToCart card ->
+        ClickSignIn ->
+            { model | page = SignIn model.page <| SignIn.init True True } ! []
+
+        SignInMsgs siMsg ->
+            case model.page of
+                SignIn redPage oldModel ->
+                    case siMsg of
+                        Authenticate email pass ->
+                            model ! []
+
+                        --api call to auth
+                        Register email fName lName pass ->
+                            model ! []
+
+                        --api call to register
+                        _ ->
+                            let
+                                newSIModel =
+                                    SignIn.update siMsg oldModel
+                            in
+                                { model | page = SignIn redPage newSIModel } ! []
+
+                _ ->
+                    ignoreOtherCases model
+
+        AuthenticatedMsgs authMsg ->
             case model.user of
                 Just user ->
-                    { model
-                        | user =
-                            Just <|
-                                addCardToUsersCart user card
-                    }
-                        ! []
+                    case authMsg of
+                        ClickAddToCart card ->
+                            { model
+                                | user =
+                                    Just <|
+                                        addCardToUsersCart user card
+                            }
+                                ! []
 
                 Nothing ->
-                    { model | page = SignIn } ! []
-
-        ClickSignIn ->
-            { model | page = SignIn } ! []
-
-        _ ->
-            ignoreOtherCases model
+                    { model | page = SignIn model.page <| SignIn.init True True } ! []
 
 
 ignoreOtherCases : model -> ( model, Cmd msg )
@@ -56,4 +78,4 @@ addCardToUsersCart user card =
                 Nothing ->
                     Just <| CartItem 1 card
     in
-    { user | cart = Dict.update card.cardId itemAdd user.cart }
+        { user | cart = Dict.update card.cardId itemAdd user.cart }

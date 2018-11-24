@@ -4,22 +4,23 @@ import Dict
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events exposing (..)
-import Types exposing (Card, Model, Msg(..), Page(..), User)
+import Types exposing (Card, Model, Msg(..), AuthMsg(..), Page(..), User)
+import SignIn
 
 
 view : Model -> Html Msg
 view model =
     div [ Attrs.class "main" ]
-        [ header model.user
+        [ header model
         , content model.page
         ]
 
 
-header : Maybe User -> Html Msg
-header mUser =
+header : Model -> Html Msg
+header model =
     let
         userBtns =
-            case mUser of
+            case model.user of
                 Just user ->
                     let
                         cartCount =
@@ -28,23 +29,23 @@ header mUser =
                                 |> List.length
                                 |> toString
                     in
-                    [ div [ Attrs.class "cart button" ]
-                        [ text ("Cart (" ++ cartCount ++ ")") ]
-                    , div [ Attrs.class "sign-out button" ]
-                        [ text "Sign out" ]
-                    ]
+                        [ div [ Attrs.class "cart button" ]
+                            [ text ("Cart (" ++ cartCount ++ ")") ]
+                        , div [ Attrs.class "sign-out button" ]
+                            [ text "Sign out" ]
+                        ]
 
                 Nothing ->
                     [ div [ Attrs.class "sign-in button", onClick ClickSignIn ]
                         [ text "Sign in" ]
                     ]
     in
-    div [ Attrs.class "header" ]
-        ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
-            [ text "Cheeky Beak Card Company" ]
-         ]
-            ++ userBtns
-        )
+        div [ Attrs.class "header" ]
+            ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
+                [ text "Cheeky Beak Card Company" ]
+             ]
+                ++ userBtns
+            )
 
 
 content : Page -> Html Msg
@@ -59,11 +60,11 @@ content page =
                 CardView c ->
                     div [ Attrs.class "card-view" ]
                         [ card c
-                        , addToCartBtn <| ClickAddToCart c
+                        , addToCartBtn <| AuthenticatedMsgs <| ClickAddToCart c
                         ]
 
-                SignIn ->
-                    signInView
+                SignIn _ signInModel ->
+                    SignIn.view signInModel SignInMsgs
 
                 Loading ->
                     div [ Attrs.class "loading" ]
@@ -72,7 +73,7 @@ content page =
                 _ ->
                     div [] [ text "Other page!" ]
     in
-    div [ Attrs.class "content" ] [ content ]
+        div [ Attrs.class "content" ] [ content ]
 
 
 card : Card -> Html Msg
@@ -87,7 +88,7 @@ card c =
                 [ text <| String.append "$" <| toString c.cost ]
             , div [ Attrs.class "category" ]
                 [ text c.category ]
-            , addToCartBtn <| ClickAddToCart c
+            , addToCartBtn <| AuthenticatedMsgs <| ClickAddToCart c
             ]
         , div [ Attrs.class "image" ]
             [ img [ Attrs.src c.imageUrl ] [] ]
@@ -96,14 +97,8 @@ card c =
 
 addToCartBtn : msg -> Html msg
 addToCartBtn m =
-    div [ Attrs.class "add-to-cart-btn button" ] []
-
-
-signInView : Html Msg
-signInView =
-    div [ Attrs.class "sign-in-wrapper" ]
-        [ div [ Attrs.class "sign-in" ]
-            []
-        , div [ Attrs.class "register" ]
-            []
+    div
+        [ Attrs.class "add-to-cart-btn button"
+        , onClick m
         ]
+        [ text "Add to cart" ]
