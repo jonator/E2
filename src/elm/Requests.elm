@@ -3,7 +3,7 @@ module Requests exposing (getCards)
 import Coders
 import Json.Decode as JD
 import Http exposing (Error(..))
-import Types exposing (Card, Msg(..))
+import Types exposing (Card, CartItem, Msg(..))
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
 authority : String
 authority =
@@ -60,3 +60,7 @@ authenticateUser username password hook =
     Http.get (fullPath ++ "users/authenticate/" ++ username ++ "/" ++ password) JD.string
         |> Http.send (processResult hook)
 
+getCartItems : Int -> (Result String (List CartItem) -> msg) -> Cmd msg
+getCartItems cartId hook =
+    Http.get (fullPath ++ "cartItems/" ++ cartId) Coders.decodeCartItemList
+        |> Http.send (processResult hook)
