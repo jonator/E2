@@ -100,3 +100,5 @@ type Msg
 
 type AuthMsg
     = ClickAddToCart Card
+    | ClickCart
+    | ClickSignOut

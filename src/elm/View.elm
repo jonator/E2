@@ -31,7 +31,10 @@ header model =
                     in
                         [ div [ Attrs.class "cart button" ]
                             [ text ("Cart (" ++ cartCount ++ ")") ]
-                        , div [ Attrs.class "sign-out button" ]
+                        , div
+                            [ Attrs.class "sign-out button"
+                            , onClick <| AuthenticatedMsgs <| ClickSignOut
+                            ]
                             [ text "Sign out" ]
                         ]
 

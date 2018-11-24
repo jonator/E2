@@ -58,6 +58,12 @@ update msg model =
                             }
                                 ! []
 
+                        ClickCart ->
+                            { model | page = CartView } ! []
+
+                        ClickSignOut ->
+                            { model | user = Nothing, page = Loading } ! [ getCards HandleCards ]
+
                 Nothing ->
                     { model | page = SignIn model.page <| SignIn.init True True } ! []
 
