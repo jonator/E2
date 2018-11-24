@@ -62,10 +62,7 @@ update msg model =
         TypeRegPass s ->
             { model | registerPassword = s }
 
-        Authenticate _ _ ->
-            model
-
-        Register _ _ _ _ ->
+        _ ->
             model
 
 
@@ -74,55 +71,61 @@ view model upgrade =
     map upgrade <|
         div [ Attrs.class "sign-in-wrapper" ]
             [ div [ Attrs.class "sign-in" ]
-                [ input
-                    [ Attrs.class "auth-email-input input"
-                    , onInput TypeAuthEmail
-                    , Attrs.placeholder "email"
+                [ text "Register for a new account!"
+                , div [ Attrs.class "inputs" ]
+                    [ input
+                        [ Attrs.class "auth-email-input input"
+                        , onInput TypeAuthEmail
+                        , Attrs.placeholder "email"
+                        ]
+                        []
+                    , input
+                        [ Attrs.class "auth-pass-input input"
+                        , onInput TypeAuthPass
+                        , Attrs.placeholder "password"
+                        , Attrs.type_ "password"
+                        ]
+                        []
+                    , div
+                        [ Attrs.class "auth-btn button"
+                        , onClick <| Authenticate model.authenticateEmail model.authenticatePassword
+                        ]
+                        [ text "Log in" ]
                     ]
-                    []
-                , input
-                    [ Attrs.class "auth-pass-input input"
-                    , onInput TypeAuthPass
-                    , Attrs.placeholder "password"
-                    , Attrs.type_ "password"
-                    ]
-                    []
-                , div
-                    [ Attrs.class "auth-btn button"
-                    , onClick <| Authenticate model.authenticateEmail model.authenticatePassword
-                    ]
-                    [ text "Log in" ]
                 ]
             , div [ Attrs.class "register" ]
-                [ input
-                    [ Attrs.class "reg-email-input input"
-                    , onInput TypeRegEmail
-                    , Attrs.placeholder "email"
+                [ text "Register for a new account!"
+                , div [ Attrs.class "inputs" ]
+                    [ input
+                        [ Attrs.class "reg-email-input input"
+                        , onInput TypeRegEmail
+                        , Attrs.placeholder "email"
+                        ]
+                        []
+                    , input
+                        [ Attrs.class "reg-fName-input input"
+                        , onInput TypeRegFName
+                        , Attrs.placeholder "first name"
+                        ]
+                        []
+                    , input
+                        [ Attrs.class "reg-lName-input input"
+                        , onInput TypeRegLName
+                        , Attrs.placeholder "last name"
+                        ]
+                        []
+                    , input
+                        [ Attrs.class "reg-pass-input input"
+                        , onInput TypeRegPass
+                        , Attrs.placeholder "password"
+                        , Attrs.type_ "password"
+                        ]
+                        []
+                    , div
+                        [ Attrs.class "reg-btn button"
+                        , onClick <| Register model.registerEmail model.registerFirstName model.registerLastName model.registerPassword
+                        ]
+                        [ text "Register" ]
                     ]
-                    []
-                , input
-                    [ Attrs.class "reg-fName-input input"
-                    , onInput TypeRegFName
-                    , Attrs.placeholder "first name"
-                    ]
-                    []
-                , input
-                    [ Attrs.class "reg-lName-input input"
-                    , onInput TypeRegLName
-                    , Attrs.placeholder "last name"
-                    ]
-                    []
-                , input
-                    [ Attrs.class "reg-pass-input input"
-                    , onInput TypeRegPass
-                    , Attrs.placeholder "password"
-                    , Attrs.type_ "password"
-                    ]
-                    []
-                , div
-                    [ Attrs.class "reg-btn button"
-                    , onClick <| Register model.registerEmail model.registerFirstName model.registerLastName model.registerPassword
-                    ]
-                    [ text "Register" ]
                 ]
             ]

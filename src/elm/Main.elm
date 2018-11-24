@@ -28,6 +28,7 @@ testUser =
     { userId = 1
     , firstName = "Bob"
     , lastName = "Jones"
+    , isAdmin = True
     , cart =
         Dict.fromList
             [ ( 99091

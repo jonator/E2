@@ -1,5 +1,6 @@
-module Types exposing (Card, CartItem, Model, Msg(..), AuthMsg(..), Page(..), User)
+module Types exposing (..)
 
+import CardEditor
 import Dict exposing (Dict)
 import SignIn
 
@@ -14,6 +15,7 @@ type alias User =
     { userId : Int
     , firstName : String
     , lastName : String
+    , isAdmin : Bool
     , cart : Dict CardId (CartItem Card)
     }
 
@@ -24,7 +26,10 @@ type Page
     | Homepage (List Card)
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List Order) TotalProfit
+    | AdminPage TotalSales OrderCount (List Order) TotalProfit CardId CardId
+    | CreateCardView CardEditor.Model
+    | EditCardView CardId CardEditor.Model
+    | DeleteCardView CardId
 
 
 type alias Card =
@@ -89,6 +94,7 @@ type Msg
     = HandleCards (Result String (List Card))
     | SignInMsgs SignIn.SignInMsg
     | ClickCard Card
+    | ClickBackToCards
     | ClickTitleText
     | ClickSignIn
     | AuthenticatedMsgs AuthMsg
@@ -99,6 +105,14 @@ type Msg
 
 
 type AuthMsg
-    = ClickAddToCart Card
+    = CardEditorMsgs CardEditor.CardEditorMsg
+    | ClickAddToCart Card
     | ClickCart
     | ClickSignOut
+    | CartCardQuantityChange CardId String
+    | ClickMyStore
+    | ClickCreateCard
+    | ClickEditCard
+    | TypeEditCardId String
+    | ClickDeleteCard
+    | TypeDeleteCardId String
