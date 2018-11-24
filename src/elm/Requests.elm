@@ -1,6 +1,6 @@
 module Requests exposing (getCards)
 
-import Coders
+import Coders exposing (ApiCartItem,apiCartItemToElmCartItem)
 import Json.Decode as JD
 import Http exposing (Error(..))
 import Types exposing (Card, CartItem, Msg(..))
@@ -49,21 +49,37 @@ processResult message res =
             message <| Err <| httpErrToString httpErr
 
 
+--Cards
 getCards : (Result String (List Card) -> msg) -> Cmd msg
 getCards hook =
     Http.get (fullPath ++ "cards") Coders.decodeCardList
         |> Http.send (processResult hook)
 
 
+--User
 authenticateUser : String -> String -> (Result String String -> msg) -> Cmd msg
 authenticateUser username password hook =
     Http.get (fullPath ++ "users/authenticate/" ++ username ++ "/" ++ password) JD.string
         |> Http.send (processResult hook)
+--Cart
 
-getCartItems : Int -> (Result String (List CartItem) -> msg) -> Cmd msg
+
+processCartResult : (Result String (List (CartItem Card)) -> msg) -> Result Http.Error (List ApiCartItem) -> msg
+processCartResult message res =
+    case res of
+        Ok cart ->
+            message <| Ok (List.map apiCartItemToElmCartItem cart)
+
+        Err httpErr ->
+            message <| Err <| httpErrToString httpErr
+
+getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems cartId hook =
-    Http.get (fullPath ++ "cartItems/" ++ cartId) Coders.decodeCartItemList
-        |> Http.send (processResult hook)
+    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
+        |> Http.send (processCartResult hook)
 
 
-
+-- getCartItem : Int -> Int -> (Result String (List CartItem) -> msg) -> Cmd msg
+-- getCartItem cartId cardId hook =
+--     Http.get (fullPath ++ "cartItems/" ++ cartId ++ "/" ++ cardId) (Coders.decodeCartItemList decodeCard) 
+--         |> Http.send (processResult hook)

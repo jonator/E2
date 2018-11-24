@@ -1,7 +1,7 @@
-module Coders exposing (decodeCardList, decodeCartItemList)
+module Coders exposing (decodeCardList, decodeCartItemList, decodeCard, ApiCartItem, apiCartItemToElmCartItem)
 
 import Json.Decode as JD exposing (Decoder, field, int, string)
-import Types exposing (Card)
+import Types exposing (Card, CartItem)
 
 
 decodeCard : Decoder Card
@@ -19,14 +19,33 @@ decodeCardList =
     JD.list decodeCard
 
 
-decodeCartItem : Decoder (CartItem Card)
+decodeCartItem : Decoder ApiCartItem
 decodeCartItem =
-    JD.map5 CartItem
-        (field "title" decodeCard)
+    JD.map6 ApiCartItem
+        (field "cardId" int)
+        (field "title" string)
+        (field "imageUrl" string)
+        (field "cost" int)
+        (field "category" string)
         (field "quantity" int)
-        
 
 
-decodeCartItemList : Decoder (List Card)
+
+decodeCartItemList : Decoder (List ApiCartItem)
 decodeCartItemList =
     JD.list decodeCartItem
+
+
+type alias ApiCartItem =
+    { cardId : Int
+    , title : String
+    , imageUrl : String
+    , cost : Int
+    , category : String
+    , quantity : Int
+    }
+
+apiCartItemToElmCartItem : ApiCartItem -> CartItem Card
+apiCartItemToElmCartItem apiCartItem = 
+    CartItem apiCartItem.quantity (Card apiCartItem.cardId apiCartItem.title apiCartItem.imageUrl apiCartItem.cost apiCartItem.category)
+
