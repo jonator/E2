@@ -2,7 +2,7 @@ module Requests exposing (getCards, getCartItems, getCartItem)
 
 import Coders exposing (ApiCartItem,apiCartItemToElmCartItem)
 import Json.Decode as JD
-import Http exposing (Error(..))
+import Http exposing (Error(..), emptyBody, request, expectStringResponse)
 import Types exposing (Card, CartItem, Msg(..))
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
 authority : String
@@ -93,3 +93,20 @@ getCartItem cartId cardId hook =
     Http.get (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId)) Coders.decodeCartItem 
         |> Http.send (processCartItemResult hook)
 
+deleteCartItems Int -> (Result String String) -> msg) -> Cmd msg
+deleteCartItems cartId hook =
+    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
+        |> Http.send (processCartResult hook)
+
+
+delete : String -> Request ()
+delete url =
+  request
+    { method = "DELETE"
+    , headers = []
+    , url = url
+    , body = emptyBody
+    , expect = expectStringResponse (\_ -> Ok ())
+    , timeout = Nothing
+    , withCredentials = False
+    }
