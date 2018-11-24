@@ -107,7 +107,10 @@ createCartItem userId cardId quantity hook =
     Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCard userId cardId quantity) JD.string
         |> Http.send (processResult hook)
 
-
+updateCartItem : Int -> Int -> Int -> ((Result String String) -> msg) -> Cmd msg
+updateCartItem userId cardId quantity hook =
+    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCard userId cardId quantity)
+        |> Http.send (processResult hook)
 
 --Resquest Types
 deleteRequest : String -> Request String
