@@ -1,11 +1,10 @@
 module Requests exposing (getCards)
 
 import Coders
+import Json.Decode as JD
 import Http exposing (Error(..))
 import Types exposing (Card, Msg(..))
-
---https://package.elm-lang.org/packages/elm-lang/core/1.0.0/Http
-
+--https://package.elm-lang.org/packages/elm-lang/http/latest/Http
 authority : String
 authority =
     "http://localhost:3000/"
@@ -54,3 +53,10 @@ getCards : (Result String (List Card) -> msg) -> Cmd msg
 getCards hook =
     Http.get (fullPath ++ "cards") Coders.decodeCardList
         |> Http.send (processResult hook)
+
+
+authenticateUser : String -> String -> (Result String String -> msg) -> Cmd msg
+authenticateUser username password hook =
+    Http.get (fullPath ++ "users/authenticate/" ++ username ++ "/" ++ password) JD.string
+        |> Http.send (processResult hook)
+
