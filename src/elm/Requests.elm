@@ -1,4 +1,4 @@
-module Requests exposing (getCards)
+module Requests exposing (getCards, getCartItems, getCartItem)
 
 import Coders exposing (ApiCartItem,apiCartItemToElmCartItem)
 import Json.Decode as JD
@@ -78,8 +78,18 @@ getCartItems cartId hook =
     Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
         |> Http.send (processCartResult hook)
 
+processCartItemResult : ((Result String (CartItem Card)) -> msg) -> Result Http.Error ApiCartItem -> msg
+processCartItemResult message res =
+    case res of
+        Ok cartItem ->
+            message <| Ok <| apiCartItemToElmCartItem cartItem
 
--- getCartItem : Int -> Int -> (Result String (List CartItem) -> msg) -> Cmd msg
--- getCartItem cartId cardId hook =
---     Http.get (fullPath ++ "cartItems/" ++ cartId ++ "/" ++ cardId) (Coders.decodeCartItemList decodeCard) 
---         |> Http.send (processResult hook)
+        Err httpErr ->
+            message <| Err <| httpErrToString httpErr
+
+
+getCartItem : Int -> Int -> ((Result String (CartItem Card)) -> msg) -> Cmd msg
+getCartItem cartId cardId hook =
+    Http.get (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId)) Coders.decodeCartItem 
+        |> Http.send (processCartItemResult hook)
+

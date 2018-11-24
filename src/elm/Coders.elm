@@ -1,4 +1,4 @@
-module Coders exposing (decodeCardList, decodeCartItemList, decodeCard, ApiCartItem, apiCartItemToElmCartItem)
+module Coders exposing (decodeCardList, decodeCartItemList, decodeCartItem, decodeCard, ApiCartItem, apiCartItemToElmCartItem)
 
 import Json.Decode as JD exposing (Decoder, field, int, string)
 import Types exposing (Card, CartItem)
