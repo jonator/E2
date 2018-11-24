@@ -92,6 +92,8 @@ type alias OrderLine =
 
 type Msg
     = HandleCards (Result String (List Card))
+    | HandleCreateUser (Result String User)
+    | HandleAuthenticateUser (Result String User)
     | SignInMsgs SignIn.SignInMsg
     | ClickCard Card
     | ClickBackToCards
@@ -105,7 +107,16 @@ type Msg
 
 
 type AuthMsg
-    = CardEditorMsgs CardEditor.CardEditorMsg
+    = HandleUpdateCartItem (Result String String)
+    | HandleGetUserCart (Result String (List (CartItem Card)))
+    | HandleCreateCard (Result String String)
+    | HandleUpdateCard (Result String String)
+    | HandleDeleteCard (Result String String)
+    | HandleDeleteCartItem (Result String String)
+    | HandleCreateCartItem (Result String String)
+    | HandleGetAllOrders (Result String (List Order))
+    | HandleGetOrderTotal (Result String Int)
+    | CardEditorMsgs CardEditor.CardEditorMsg
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut

@@ -10,10 +10,18 @@ import SignIn exposing (SignInMsg(..))
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HandleCards (Ok newCards) ->
-            { model | page = Homepage newCards } ! []
+        HandleCards res ->
+            case res of
+                Ok newCards ->
+                    { model | page = Homepage newCards } ! []
 
-        HandleCards (Err str) ->
+                Err _ ->
+                    ignoreOtherCases model
+
+        HandleCreateUser res ->
+            ignoreOtherCases model
+
+        HandleAuthenticateUser res ->
             ignoreOtherCases model
 
         ClickCard card ->
@@ -54,6 +62,33 @@ update msg model =
             case model.user of
                 Just user ->
                     case authMsg of
+                        HandleGetUserCart res ->
+                            ignoreOtherCases model
+
+                        HandleCreateCard res ->
+                            ignoreOtherCases model
+
+                        HandleUpdateCard res ->
+                            ignoreOtherCases model
+
+                        HandleDeleteCard res ->
+                            ignoreOtherCases model
+
+                        HandleDeleteCartItem res ->
+                            ignoreOtherCases model
+
+                        HandleCreateCartItem res ->
+                            ignoreOtherCases model
+
+                        HandleUpdateCartItem res ->
+                            ignoreOtherCases model
+
+                        HandleGetAllOrders res ->
+                            ignoreOtherCases model
+
+                        HandleGetOrderTotal res ->
+                            ignoreOtherCases model
+
                         ClickAddToCart card ->
                             { model
                                 | user =
@@ -127,9 +162,9 @@ update msg model =
 
                         ClickEditCard ->
                             case model.page of
-                                AdminPage _ _ _ _ editId _ ->
+                                AdminPage a b c d editId e ->
                                     -- call get card by id, call orders apis
-                                    { model | page = model.page } ! []
+                                    { model | page = AdminPage a b c d 0 e } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -149,9 +184,9 @@ update msg model =
 
                         ClickDeleteCard ->
                             case model.page of
-                                AdminPage _ _ _ _ _ delId ->
+                                AdminPage a b c d e delId ->
                                     --call delete card by id, call orders apis
-                                    { model | page = model.page } ! []
+                                    { model | page = AdminPage a b c d e 0 } ! []
 
                                 _ ->
                                     ignoreOtherCases model
