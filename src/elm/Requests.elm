@@ -64,3 +64,6 @@ getCartItems : Int -> (Result String (List CartItem) -> msg) -> Cmd msg
 getCartItems cartId hook =
     Http.get (fullPath ++ "cartItems/" ++ cartId) Coders.decodeCartItemList
         |> Http.send (processResult hook)
+
+
+
