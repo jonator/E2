@@ -138,8 +138,8 @@ processCartItemResult message res =
 
 
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
-getCartItems cartId hook =
-    Http.get (fullPath ++ "cartItems/" ++ (toString cartId)) Coders.decodeCartItemList
+getCartItems userId hook =
+    Http.get (fullPath ++ "cartItems/" ++ (toString userId)) Coders.decodeCartItemList
         |> Http.send (processCartResult hook)
 
 

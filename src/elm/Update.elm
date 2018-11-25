@@ -94,7 +94,19 @@ update msg model =
                 Just user ->
                     case authMsg of
                         HandleGetUserCart res ->
-                            ignoreOtherCases model
+                            case res of
+                                Ok cart ->
+                                    let
+                                        newCart =
+                                            List.map (\x -> ( x.item.cardId, x )) cart
+
+                                        newUser =
+                                            { user | cart = Dict.fromList newCart }
+                                    in
+                                        { model | user = Just newUser } ! []
+
+                                Err _ ->
+                                    ignoreOtherCases model
 
                         HandleCreateCard res ->
                             ignoreOtherCases model
@@ -109,7 +121,7 @@ update msg model =
                             ignoreOtherCases model
 
                         HandleCreateCartItem res ->
-                            ignoreOtherCases model
+                            model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleUpdateCartItem res ->
                             ignoreOtherCases model
@@ -132,7 +144,7 @@ update msg model =
                                     Just <|
                                         addCardToUsersCart user card
                             }
-                                ! []
+                                ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
 
                         ClickCart ->
                             { model | page = CartView } ! []
