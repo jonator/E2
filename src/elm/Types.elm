@@ -1,6 +1,8 @@
-module Types exposing (Card, CartItem, Model, Msg(..), Page(..), User)
+module Types exposing (..)
 
+import CardEditor
 import Dict exposing (Dict)
+import SignIn
 
 
 type alias Model =
@@ -13,17 +15,21 @@ type alias User =
     { userId : Int
     , firstName : String
     , lastName : String
+    , isAdmin : Bool
     , cart : Dict CardId (CartItem Card)
     }
 
 
 type Page
     = Loading
-    | SignIn
+    | SignIn RedirectPage SignIn.Model
     | Homepage (List Card)
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List Order) TotalProfit
+    | AdminPage TotalSales OrderCount (List Order) TotalProfit CardId CardId
+    | CreateCardView CardEditor.Model
+    | EditCardView CardId CardEditor.Model
+    | DeleteCardView CardId
 
 
 type alias Card =
@@ -53,10 +59,6 @@ type alias TotalProfit =
     Int
 
 
-type alias Email =
-    String
-
-
 type alias FirstName =
     String
 
@@ -65,12 +67,12 @@ type alias LastName =
     String
 
 
-type alias Password =
-    String
-
-
 type alias CardId =
     Int
+
+
+type alias RedirectPage =
+    Page
 
 
 type alias Order =
@@ -90,9 +92,38 @@ type alias OrderLine =
 
 type Msg
     = HandleCards (Result String (List Card))
+    | HandleCreateUser (Result String User)
+    | HandleAuthenticateUser (Result String User)
+    | SignInMsgs SignIn.SignInMsg
     | ClickCard Card
+    | ClickBackToCards
     | ClickTitleText
     | ClickSignIn
-    | Authenticate Email Password
-    | Register FirstName LastName Email Password
+    | AuthenticatedMsgs AuthMsg
+
+
+
+--Event that requires user to be authenticated
+
+
+type AuthMsg
+    = HandleUpdateCartItem (Result String String)
+    | HandleGetUserCart (Result String (List (CartItem Card)))
+    | HandleCreateCard (Result String String)
+    | HandleUpdateCard (Result String String)
+    | HandleDeleteCard (Result String String)
+    | HandleDeleteCartItem (Result String String)
+    | HandleCreateCartItem (Result String String)
+    | HandleGetAllOrders (Result String (List Order))
+    | HandleGetOrderTotal (Result String Int)
+    | CardEditorMsgs CardEditor.CardEditorMsg
     | ClickAddToCart Card
+    | ClickCart
+    | ClickSignOut
+    | CartCardQuantityChange CardId String
+    | ClickMyStore
+    | ClickCreateCard
+    | ClickEditCard
+    | TypeEditCardId String
+    | ClickDeleteCard
+    | TypeDeleteCardId String
