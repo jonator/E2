@@ -18,11 +18,44 @@ update msg model =
                 Err _ ->
                     ignoreOtherCases model
 
-        HandleCreateUser res ->
-            ignoreOtherCases model
+        HandleRegisterUser res ->
+            case res of
+                Ok _ ->
+                    case model.page of
+                        SignIn siModel ->
+                            { model | page = Loading } ! [ authenticateUser siModel.registerEmail siModel.registerPassword HandleAuthenticateUser ]
+
+                        _ ->
+                            ignoreOtherCases model
+
+                Err _ ->
+                    case model.page of
+                        SignIn siModel ->
+                            let
+                                newSiModel =
+                                    { siModel | validReg = False }
+                            in
+                                { model | page = SignIn newSiModel } ! []
+
+                        _ ->
+                            ignoreOtherCases model
 
         HandleAuthenticateUser res ->
-            ignoreOtherCases model
+            case res of
+                Ok user ->
+                    { model | user = Just user, page = Loading } ! [ getCards HandleCards ]
+
+                Err _ ->
+                    case model.page of
+                        SignIn siModel ->
+                            let
+                                newSiModel =
+                                    { siModel | validAuth = False }
+                            in
+                                { model | page = SignIn newSiModel } ! []
+
+                        _ ->
+                            ignoreOtherCases model
 
         ClickCard card ->
             { model | page = CardView card } ! []
@@ -34,26 +67,24 @@ update msg model =
             { model | page = Loading } ! [ getCards HandleCards ]
 
         ClickSignIn ->
-            { model | page = SignIn model.page <| SignIn.init True True } ! []
+            { model | page = SignIn <| SignIn.init True True } ! []
 
         SignInMsgs siMsg ->
             case model.page of
-                SignIn redPage oldModel ->
+                SignIn oldModel ->
                     case siMsg of
                         Authenticate email pass ->
-                            model ! []
+                            model ! [ authenticateUser email pass HandleAuthenticateUser ]
 
-                        --api call to auth
                         Register email fName lName pass ->
-                            model ! []
+                            model ! [ registerUser email fName lName pass HandleRegisterUser ]
 
-                        --api call to register
                         _ ->
                             let
                                 newSIModel =
                                     SignIn.update siMsg oldModel
                             in
-                                { model | page = SignIn redPage newSIModel } ! []
+                                { model | page = SignIn newSIModel } ! []
 
                 _ ->
                     ignoreOtherCases model
@@ -84,7 +115,13 @@ update msg model =
                             ignoreOtherCases model
 
                         HandleGetAllOrders res ->
-                            ignoreOtherCases model
+                            case res of
+                                Ok orderList ->
+                                    -- call getorder total by this order id, calculate total profit
+                                    { model | page = AdminPage 0 (List.length orderList) orderList 0 0 0 } ! []
+
+                                Err _ ->
+                                    ignoreOtherCases model
 
                         HandleGetOrderTotal res ->
                             ignoreOtherCases model
@@ -137,7 +174,10 @@ update msg model =
 
                         ClickMyStore ->
                             --get adminpage api calls, switch page to loading
-                            { model | page = fakeAdminPage } ! []
+                            if user.isAdmin then
+                                { model | page = Loading } ! [ getAllOrders <| AuthenticatedMsgs << HandleGetAllOrders ]
+                            else
+                                ignoreOtherCases model
 
                         ClickCreateCard ->
                             { model | page = CreateCardView CardEditor.init } ! []
@@ -205,7 +245,7 @@ update msg model =
                                     ignoreOtherCases model
 
                 Nothing ->
-                    { model | page = SignIn model.page <| SignIn.init True True } ! []
+                    { model | page = SignIn <| SignIn.init True True } ! []
 
 
 ignoreOtherCases : model -> ( model, Cmd msg )

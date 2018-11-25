@@ -71,7 +71,7 @@ view model upgrade =
     map upgrade <|
         div [ Attrs.class "sign-in-wrapper" ]
             [ div [ Attrs.class "sign-in" ]
-                [ text "Register for a new account!"
+                [ text "Log in!"
                 , div [ Attrs.class "inputs" ]
                     [ input
                         [ Attrs.class "auth-email-input input"
@@ -86,6 +86,11 @@ view model upgrade =
                         , Attrs.type_ "password"
                         ]
                         []
+                    , if not <| model.validAuth then
+                        div [ Attrs.class "bad-auth" ]
+                            [ text "There was a problem logging in!" ]
+                      else
+                        div [] []
                     , div
                         [ Attrs.class "auth-btn button"
                         , onClick <| Authenticate model.authenticateEmail model.authenticatePassword
@@ -121,6 +126,11 @@ view model upgrade =
                         , Attrs.type_ "password"
                         ]
                         []
+                    , if not <| model.validReg then
+                        div [ Attrs.class "bad-reg" ]
+                            [ text "There was a problem registering!" ]
+                      else
+                        div [] []
                     , div
                         [ Attrs.class "reg-btn button"
                         , onClick <| Register model.registerEmail model.registerFirstName model.registerLastName model.registerPassword

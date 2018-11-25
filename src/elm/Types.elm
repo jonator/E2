@@ -22,7 +22,7 @@ type alias User =
 
 type Page
     = Loading
-    | SignIn RedirectPage SignIn.Model
+    | SignIn SignIn.Model
     | Homepage (List Card)
     | CardView Card
     | CartView
@@ -72,10 +72,6 @@ type alias CardId =
     Int
 
 
-type alias RedirectPage =
-    Page
-
-
 type alias Order =
     { orderId : Int
     , user : User
@@ -93,7 +89,7 @@ type alias OrderLine =
 
 type Msg
     = HandleCards (Result String (List Card))
-    | HandleCreateUser (Result String User)
+    | HandleRegisterUser (Result String User)
     | HandleAuthenticateUser (Result String User)
     | SignInMsgs SignIn.SignInMsg
     | ClickCard Card

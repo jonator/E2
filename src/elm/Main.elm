@@ -20,7 +20,7 @@ main =
 
 initialModel : Model
 initialModel =
-    { user = Nothing, page = Loading }
+    { user = Just testUser, page = Loading }
 
 
 testUser : User

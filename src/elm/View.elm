@@ -50,7 +50,7 @@ content model =
                         CardView c ->
                             cardView c
 
-                        SignIn _ signInModel ->
+                        SignIn signInModel ->
                             SignIn.view signInModel SignInMsgs
 
                         Loading ->
