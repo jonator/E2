@@ -137,6 +137,10 @@ createUser firstName lastName email password isAdmin hook =
     Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password isAdmin) JD.string
         |> Http.send (processResult hook)
 
+--Orders
+
+
+
 --Resquest Types
 deleteRequest : String -> Request String
 deleteRequest url =
