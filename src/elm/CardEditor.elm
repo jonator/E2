@@ -8,7 +8,8 @@ import Html.Events exposing (onClick, onInput)
 type alias Model =
     { title : String
     , imageUrl : String
-    , cost : Int
+    , price : Int
+    , costToProduce : Int
     , category : String
     }
 
@@ -16,7 +17,8 @@ type alias Model =
 type CardEditorMsg
     = TypeTitle String
     | TypeImageUrl String
-    | TypeCost String
+    | TypePrice String
+    | TypeCostToProduce String
     | TypeCategory String
     | SubmitCard String String Int String
 
@@ -25,7 +27,8 @@ init : Model
 init =
     { title = ""
     , imageUrl = ""
-    , cost = 0
+    , price = 0
+    , costToProduce = 0
     , category = ""
     }
 
@@ -39,10 +42,18 @@ update msg model =
         TypeImageUrl val ->
             { model | imageUrl = val }
 
-        TypeCost val ->
+        TypePrice val ->
             case String.toInt val of
                 Ok v ->
-                    { model | cost = v }
+                    { model | price = v }
+
+                Err _ ->
+                    model
+
+        TypeCostToProduce val ->
+            case String.toInt val of
+                Ok v ->
+                    { model | costToProduce = v }
 
                 Err _ ->
                     model
@@ -72,9 +83,15 @@ view model upgrade =
                 ]
                 []
             , input
-                [ Attrs.class "cost-input input"
-                , Attrs.placeholder "cost ($)"
-                , onInput TypeCost
+                [ Attrs.class "price-input input"
+                , Attrs.placeholder "Price ($)"
+                , onInput TypePrice
+                ]
+                []
+            , input
+                [ Attrs.class "cost-to-produce-input input"
+                , Attrs.placeholder "Cost to produce ($)"
+                , onInput TypeCostToProduce
                 ]
                 []
             , input
@@ -85,7 +102,7 @@ view model upgrade =
                 []
             , div
                 [ Attrs.class "create-card-btn button"
-                , onClick <| SubmitCard model.title model.imageUrl model.cost model.category
+                , onClick <| SubmitCard model.title model.imageUrl model.price model.category
                 ]
                 [ text "Create card" ]
             ]

@@ -36,7 +36,8 @@ type alias Card =
     { cardId : Int
     , title : String
     , imageUrl : String
-    , cost : Int
+    , price : Int
+    , costToProduce : Int
     , category : String
     }
 

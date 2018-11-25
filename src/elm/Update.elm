@@ -248,7 +248,8 @@ fakeOrderList =
                     { cardId = 2
                     , title = "Ignoramus"
                     , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/ALL-THE-DAYS1_400x.jpg?v=1420127707"
-                    , cost = 232
+                    , price = 232
+                    , costToProduce = 23
                     , category = "Apples"
                     }
               , quantity = 33
@@ -270,7 +271,8 @@ fakeOrderList =
                     { cardId = 4
                     , title = "Apple Juice"
                     , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/JOY1_400x.jpg?v=1446490387"
-                    , cost = 22
+                    , price = 22
+                    , costToProduce = 2
                     , category = "Sleek"
                     }
               , quantity = 1
@@ -280,7 +282,8 @@ fakeOrderList =
                     { cardId = 5
                     , title = "Wonderbread"
                     , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/ALWAYS-FOREVER3_400x.jpg?v=1404230274"
-                    , cost = 44
+                    , price = 44
+                    , costToProduce = 12
                     , category = "Unbranded"
                     }
               , quantity = 2
