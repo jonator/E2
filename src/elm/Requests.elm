@@ -65,6 +65,11 @@ updateCard cardId title imageUrl cost category userId hook =
     Http.post (fullPath ++ "users") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost category userId) JD.string
         |> Http.send (processResult hook)
 
+deleteCard : Int -> Int -> ((Result String String) -> msg) -> Cmd msg
+deleteCard cardId userId hook =
+    deleteRequest (fullPath ++ "users?" ++ (toString cardId) ++ "&" ++ (toString userId))
+        |> Http.send (processResult hook)
+
 --User
 authenticateUser : String -> String -> (Result String String -> msg) -> Cmd msg
 authenticateUser username password hook =
