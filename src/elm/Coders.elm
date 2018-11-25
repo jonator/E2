@@ -2,7 +2,7 @@ module Coders exposing (..)
 
 import Json.Decode as JD exposing (Decoder, field, int, string)
 import Json.Encode as JE exposing (object, int, string, Value)
-import Types exposing (Card, CartItem)
+import Types exposing (Card, CartItem, OrderLine)
 
 
 decodeCard : Decoder Card
@@ -47,6 +47,23 @@ type alias ApiCartItem =
     , category : String
     , quantity : Int
     }
+
+type alias ApiUser = 
+    { userId : Int
+    , firstName : String
+    , lastName : String
+    , email : String
+    , password : String
+    , isAdmin : Bool
+    }
+
+type alias ApiOrders =
+    { orderId : Int
+    , user : ApiUser
+    , orderLines : List OrderLine
+    , orderDate : String
+    }
+
 
 
 apiCartItemToElmCartItem : ApiCartItem -> CartItem Card
