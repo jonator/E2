@@ -252,3 +252,88 @@ VALUES
 
 SELECT *
 FROM Project.[User]
+
+DECLARE @orderCount INT = 300;
+
+WHILE(SELECT COUNT(*) FROM Project.[Order]) < @orderCount
+BEGIN
+INSERT Project.[Order] (UserID, OrderDate)
+VALUES
+
+	(
+		(
+			SELECT UserID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY UserID) [row], UserID
+			FROM Project.[User]
+			) t 
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.[User])
+		)
+	
+	,GETDATE() - (365 * (5 * RAND())));
+END
+
+SELECT *
+FROM Project.[Order]
+ORDER BY UserID
+
+DECLARE @orderLineCount INT = 1;
+
+WHILE(SELECT COUNT(*) FROM Project.OrderLines) < @orderCount
+BEGIN
+INSERT Project.OrderLines (OrderID, ProductID, Quantity)
+VALUES
+	(
+		
+		@orderLineCount,
+
+		(
+			SELECT ProductID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY ProductID) [row], ProductID
+			FROM Project.Product
+			) t 
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Product)
+		),
+		CAST(RAND()*10 as INT)+1
+	)
+
+	SET @orderLineCount = @orderLineCount+1;
+END
+
+WHILE(SELECT COUNT(*) FROM Project.OrderLines) < 800
+BEGIN
+INSERT Project.OrderLines (OrderID, ProductID, Quantity)
+VALUES
+	(
+		(
+			SELECT OrderID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY OrderID) [row], OrderID
+			FROM Project.[Order]
+			) t 
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.[Order])
+		),
+
+		(
+			SELECT ProductID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY ProductID) [row], ProductID
+			FROM Project.Product
+			) t 
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Product)
+		),
+		CAST(RAND()*10 as INT)+1
+	)
+END
+
+
+SELECT *
+FROM Project.OrderLines
+ORDER BY OrderID
+
+
+INSERT Project.CartItems (UserID, ProductID, Quantity)
+VALUES
+		(20, 12, 3),
+		(20, 5, 2),
+		(20, 30, 4);
+
+SELECT *
+FROM Project.CartItems
