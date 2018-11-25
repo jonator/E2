@@ -80,14 +80,14 @@ async function getCard(cardId) {
   return (await getCards(c => c.cardId === cardId))[0]
 }
 
-async function updateCard(cardId, newInfo) {
-  const card = await getCard(cardId)
+async function updateCard(reqBody) {
+  const card = await getCard(parseInt(reqBody.cardId, 10))
   if (!card) {
     return null
   }
   // doing this to make a new copy of the card to avoid subtle bugs
   // that rely on mutation.
-  const newCardWithUpdates = Object.assign({}, card, newInfo)
+  const newCardWithUpdates = Object.assign({}, card, reqBody)
   db.cards[db.cards.indexOf(card)] = newCardWithUpdates
   return newCardWithUpdates
 }

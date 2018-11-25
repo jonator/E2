@@ -1,5 +1,8 @@
 const db = require('../utils/db')
 
+// get the specified id from the req.params
+const intId = (req, property) => parseInt(req.params[property], 10)
+
 exports.createCard = async (req, res) => {
   const newCard = await db.insertCard(req.body)
   if (newCard) {
@@ -17,14 +20,14 @@ exports.getCards = async (req, res) => {
 }
 
 exports.updateCard = async (req, res) => {
-  const newCard = await db.updateCard(parseInt(req.params.cardId, 10), req.body)
+  const newCard = await db.updateCard(req.body)
   if (newCard) {
     return res.json(newCard)
   }
   return res.status(404).send()
 }
 exports.deleteCard = async (req, res) => {
-  const deletedCard = await db.deleteCard(parseInt(req.params.cardId, 10))
+  const deletedCard = await db.deleteCard(intId(req, 'cardId'))
   if (deletedCard) {
     return res.json(deletedCard)
   }
@@ -32,7 +35,7 @@ exports.deleteCard = async (req, res) => {
 }
 
 exports.getCard = async (req, res) => {
-  const card = await db.getCard(parseInt(req.params.cardId, 10))
+  const card = await db.getCard(intId(req, 'cardId'))
   if (card) {
     return res.json(card)
   }

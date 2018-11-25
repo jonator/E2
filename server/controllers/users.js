@@ -1,5 +1,6 @@
 const db = require('../utils/db')
 
+// get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
 
 exports.getUser = async (req, res) => {
