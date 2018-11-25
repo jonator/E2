@@ -139,8 +139,12 @@ processCartItemResult message res =
 
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-    Http.get (fullPath ++ "cartItems/" ++ (toString userId)) Coders.decodeCartItemList
-        |> Http.send (processCartResult hook)
+    let
+        i =
+            Debug.log "userId" userId
+    in
+        Http.get (fullPath ++ "cartItems/" ++ (toString userId)) Coders.decodeCartItemList
+            |> Http.send (processCartResult hook)
 
 
 getCartItem : Int -> Int -> (Result String (CartItem Card) -> msg) -> Cmd msg

@@ -153,7 +153,11 @@ const getCartItemsByUser = async userId => {
   if (cartItems.length === 0) {
     return null
   }
-  return cartItems
+  const newCartItems = cartItems.map(function (a) {
+    delete a.userId
+    return a
+  })
+  return newCartItems
 }
 
 const deleteCartItemsByUser = async userId => {
@@ -166,7 +170,14 @@ const deleteCartItemsByUser = async userId => {
 }
 
 const insertCartItem = async cartItem => {
-  db.cartItems.push(cartItem)
+  const card = (await getCards(c => c.cardId === cartItem.cardId))[0]
+  const cartItemNew = {
+    userId: cartItem.userId,
+    ...card,
+    quantity: cartItem.quantity
+  }
+  console.log(cartItemNew)
+  db.cartItems.push(cartItemNew)
   return cartItem
 }
 const updateCartItem = async newInfo => {

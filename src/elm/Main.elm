@@ -5,7 +5,6 @@ import Requests
 import Types exposing (Model, Msg(..), Page(..), User)
 import Update exposing (update)
 import View exposing (view)
-import Dict
 
 
 main : Program Never Model Msg

@@ -43,7 +43,10 @@ update msg model =
         HandleAuthenticateUser res ->
             case res of
                 Ok user ->
-                    { model | user = Just user, page = Loading } ! [ getCards HandleCards ]
+                    { model | user = Just user, page = Loading }
+                        ! [ getCards HandleCards
+                          , getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart
+                          ]
 
                 Err _ ->
                     case model.page of

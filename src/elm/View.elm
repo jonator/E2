@@ -177,7 +177,7 @@ cart cardList =
 
 cartItem : CartItem Card -> Html Msg
 cartItem cartCard =
-    div [ Attrs.class "cart-card" ]
+    div [ Attrs.class "cart-card card" ]
         [ div [ Attrs.class "info" ]
             [ div [ Attrs.class "id" ]
                 [ text <| toString cartCard.item.cardId ]
