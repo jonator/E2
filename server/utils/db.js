@@ -55,7 +55,10 @@ async function authenticateUser(auth) {
   if (!user) {
     return null
   }
-  return user.password === auth.password
+  if (user.password === auth.password) {
+    return user
+  }
+  return undefined
 }
 
 /** Cards */
@@ -108,12 +111,19 @@ const getOrder = async orderId => {
   }
   return order
 }
-const getOrderTotal = async () =>
-  db.orders.reduce((tot, order) => {
-    let myTotal = tot
-    order.orderLines.forEach(orderLine => (myTotal += orderLine.card.cost * orderLine.quantity))
-    return myTotal
+const getTotalSales = async () => {
+  const total = db.orders.reduce((tot, order) => {
+    order.orderLines.forEach(orderLine => {
+      const costToAdd = orderLine.card.price * orderLine.quantity
+      tot += costToAdd // eslint-disable-line
+    })
+    return tot
   }, 0)
+  if (total) {
+    return total.toFixed(2)
+  }
+  return undefined
+}
 
 const getCardsSoldByCategory = async () => {
   const cards = await getCards()
@@ -201,7 +211,7 @@ const db = {
 
   getOrders,
   getOrder,
-  getOrderTotal,
+  getTotalSales,
   getCardsSoldByCategory,
 
   getCartItemsByUser,

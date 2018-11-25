@@ -18,9 +18,12 @@ exports.getOrder = async (req, res) => {
   return res.status(404).send()
 }
 
-exports.getOrderTotal = async (req, res) => {
-  const orderTotal = await db.getOrderTotal()
-  return res.json(orderTotal)
+exports.getTotalSales = async (req, res) => {
+  const totalSales = await db.getTotalSales()
+  if (totalSales) {
+    return res.json({ total: totalSales })
+  }
+  res.status(404).send()
 }
 
 exports.getCardsSoldByCategory = async (req, res) => {
