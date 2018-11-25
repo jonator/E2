@@ -18,9 +18,9 @@ exports.getUsers = async (req, res) => {
 
 exports.authenticateUser = async (req, res) => {
   const { email, password } = req.params
-  const isUser = await db.authenticateUser({ email, password })
-  if (isUser) {
-    return res.send('authenticated')
+  const user = await db.authenticateUser({ email, password })
+  if (user) {
+    return res.json(user)
   }
   return res.status(401).send('unauthenticated')
 }

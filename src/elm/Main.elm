@@ -37,7 +37,8 @@ testUser =
                     { cardId = 99091
                     , title = "ASDdsdfsdf"
                     , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/CHEERS-WHT_400x.jpg?v=1416259320"
-                    , cost = 1101
+                    , price = 1101
+                    , costToProduce = 22
                     , category = "Rustic"
                     }
                 }
@@ -48,7 +49,8 @@ testUser =
                     { cardId = 39407
                     , title = "dfsfsdfsdf"
                     , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/ALWAYS-FOREVER3_400x.jpg?v=1404230274"
-                    , cost = 3223
+                    , price = 3223
+                    , costToProduce = 24
                     , category = "Fantastic"
                     }
                 }
