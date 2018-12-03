@@ -125,6 +125,14 @@ const getTotalSales = async () => {
   return undefined
 }
 
+const getTotalProfit = async () => {
+  const total = 1000
+  if (total) {
+    return total.toFixed(2)
+  }
+  return undefined
+}
+
 const getCardsSoldByCategory = async () => {
   const cards = await getCards()
   const ordersByCategory = db.orders.reduce((arr, order) => {
@@ -212,6 +220,7 @@ const db = {
   getOrders,
   getOrder,
   getTotalSales,
+  getTotalProfit,
   getCardsSoldByCategory,
 
   getCartItemsByUser,

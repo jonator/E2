@@ -26,6 +26,14 @@ exports.getTotalSales = async (req, res) => {
   res.status(404).send()
 }
 
+exports.getTotalSales = async (req, res) => {
+  const totalProfit = await db.getTotalProfit()
+  if (totalProfit) {
+    return res.json({ total: totalProfit })
+  }
+  res.status(404).send()
+}
+
 exports.getCardsSoldByCategory = async (req, res) => {
   const cardsSoldByCategory = await db.getCardsSoldByCategory()
   if (cardsSoldByCategory) {
