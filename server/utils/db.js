@@ -4,11 +4,13 @@ const generate = require('./generate')
 
 async function insertUser(user) {
   const newUser = {
-    ...user,
     userId: generate.id(),
+    ...user,
+    isAdmin: false,
   }
   db.users.push(newUser)
-  return newUser
+  const { password, ...safeUser } = newUser // eslint-disable-line
+  return safeUser
 }
 
 async function getUsers(filter) {
@@ -16,37 +18,7 @@ async function getUsers(filter) {
 }
 
 async function getUser(userId) {
-  const userCartItems = await getCartItemsByUser(userId)
-  const cards = await getCards()
-  let cart
-  if (userCartItems) {
-    cart = cards.reduce((arr, card) => {
-      const cartItem = userCartItems.filter(c => card.cardId === c.cardId && c.userId === userId)[0]
-      if (cartItem) {
-        arr.push({ ...card, quantity: cartItem.quantity })
-      }
-      return arr
-    }, [])
-  }
   const user = (await getUsers(u => u.userId === userId))[0]
-  return { user, cart }
-}
-
-async function updateUser(userId, newInfo) {
-  const user = await getUser(userId)
-  if (!user) {
-    return null
-  }
-  // doing this to make a new copy of the user to avoid subtle bugs
-  // that rely on mutation.
-  const newUserWithUpdates = Object.assign({}, user, newInfo)
-  db.users[db.users.indexOf(user)] = newUserWithUpdates
-  return newUserWithUpdates
-}
-
-async function deleteUser(userId) {
-  const user = await getUser(userId)
-  db.users = db.users.filter(u => u.userId !== userId)
   return user
 }
 
@@ -56,7 +28,8 @@ async function authenticateUser(auth) {
     return null
   }
   if (user.password === auth.password) {
-    return user
+    const { password, ...safeUser } = user // eslint-disable-line
+    return safeUser
   }
   return undefined
 }
@@ -65,8 +38,8 @@ async function authenticateUser(auth) {
 
 async function insertCard(card) {
   const newCard = {
-    ...card,
     cardId: generate.id(),
+    ...card,
   }
   db.cards.push(newCard)
   return newCard
@@ -80,14 +53,14 @@ async function getCard(cardId) {
   return (await getCards(c => c.cardId === cardId))[0]
 }
 
-async function updateCard(cardId, newInfo) {
-  const card = await getCard(cardId)
+async function updateCard(reqBody) {
+  const card = await getCard(parseInt(reqBody.cardId, 10))
   if (!card) {
     return null
   }
   // doing this to make a new copy of the card to avoid subtle bugs
   // that rely on mutation.
-  const newCardWithUpdates = Object.assign({}, card, newInfo)
+  const newCardWithUpdates = Object.assign({}, card, reqBody)
   db.cards[db.cards.indexOf(card)] = newCardWithUpdates
   return newCardWithUpdates
 }
@@ -111,6 +84,25 @@ const getOrder = async orderId => {
   }
   return order
 }
+const createOrder = async userId => {
+  const user = await db.getUser(userId)
+  const cartItems = await db.getCartItemsByUser(userId)
+  if (!user || !cartItems) {
+    return null
+  }
+  const { password, ...safeUser } = user //eslint-disable-line
+  const orderLines = cartItems.map(item => ({ orderLineId: generate.id(), card: item.card, quantity: item.quantity }))
+  const order = {
+    orderId: generate.id(),
+    user: safeUser,
+    orderLines,
+    orderDate: new Date(Date.now()).toISOString(),
+  }
+  db.orders.push(order)
+  db.cartItems = db.cartItems.filter(cartItem => cartItem.userId !== userId)
+  return order
+}
+
 const getTotalSales = async () => {
   const total = db.orders.reduce((tot, order) => {
     order.orderLines.forEach(orderLine => {
@@ -120,7 +112,15 @@ const getTotalSales = async () => {
     return tot
   }, 0)
   if (total) {
-    return total.toFixed(2)
+    return total
+  }
+  return undefined
+}
+
+const getTotalProfit = async () => {
+  const total = 1000
+  if (total) {
+    return total
   }
   return undefined
 }
@@ -130,7 +130,9 @@ const getCardsSoldByCategory = async () => {
   const ordersByCategory = db.orders.reduce((arr, order) => {
     order.orderLines.forEach(orderLine => {
       const card = cards.filter(c => c.cardId === orderLine.card.cardId)[0]
-      arr.push({ category: card.category, quantity: orderLine.quantity })
+      if (card) {
+        arr.push({ category: card.category, quantity: orderLine.quantity })
+      }
     })
     return arr
   }, [])
@@ -149,7 +151,15 @@ const getCardsSoldByCategory = async () => {
 /** Cart */
 
 const getCartItemsByUser = async userId => {
-  const cartItems = userId ? db.cartItems.filter(cartItem => cartItem.userId === userId) : [...db.cartItems]
+  const cards = await getCards()
+  const cartItems = userId
+    ? db.cartItems
+      .filter(cartItem => cartItem.userId === userId)
+      .map(cartItem => {
+        const card = cards.filter(c => c.cardId === cartItem.cardId)[0]
+        return { card, quantity: cartItem.quantity }
+      })
+    : [...db.cartItems]
   if (cartItems.length === 0) {
     return null
   }
@@ -170,14 +180,12 @@ const deleteCartItemsByUser = async userId => {
 }
 
 const insertCartItem = async cartItem => {
-  const card = (await getCards(c => c.cardId === cartItem.cardId))[0]
-  const cartItemNew = {
-    userId: cartItem.userId,
-    ...card,
-    quantity: cartItem.quantity
+  const card = await getCard(cartItem.cardId)
+  const user = await getUser(cartItem.userId)
+  if (!card || !user) {
+    return null
   }
-  console.log(cartItemNew)
-  db.cartItems.push(cartItemNew)
+  db.cartItems.push(cartItem)
   return cartItem
 }
 const updateCartItem = async newInfo => {
@@ -197,7 +205,7 @@ async function deleteCartItem(userId, cardId) {
   if (!cartItem) {
     return null
   }
-  db.cartItems = db.cartItems.filter(i => i.userId !== userId && i.cardId !== cardId)
+  db.cartItems = db.cartItems.filter(i => !(i.userId === userId && i.cardId === cardId))
   return cartItem
 }
 
@@ -210,8 +218,6 @@ const db = {
   insertUser,
   getUser,
   getUsers,
-  updateUser,
-  deleteUser,
   authenticateUser,
 
   insertCard,
@@ -223,7 +229,9 @@ const db = {
   getOrders,
   getOrder,
   getTotalSales,
+  getTotalProfit,
   getCardsSoldByCategory,
+  createOrder,
 
   getCartItemsByUser,
   deleteCartItemsByUser,

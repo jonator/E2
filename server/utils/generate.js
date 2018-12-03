@@ -56,5 +56,4 @@ const generate = {
     ...overrides,
   }),
 }
-
 module.exports = generate
