@@ -18,37 +18,7 @@ async function getUsers(filter) {
 }
 
 async function getUser(userId) {
-  const userCartItems = await getCartItemsByUser(userId)
-  const cards = await getCards()
-  let cart
-  if (userCartItems) {
-    cart = cards.reduce((arr, card) => {
-      const cartItem = userCartItems.filter(c => card.cardId === c.cardId && c.userId === userId)[0]
-      if (cartItem) {
-        arr.push({ ...card, quantity: cartItem.quantity })
-      }
-      return arr
-    }, [])
-  }
   const user = (await getUsers(u => u.userId === userId))[0]
-  return { user, cart }
-}
-
-async function updateUser(userId, newInfo) {
-  const user = await getUser(userId)
-  if (!user) {
-    return null
-  }
-  // doing this to make a new copy of the user to avoid subtle bugs
-  // that rely on mutation.
-  const newUserWithUpdates = Object.assign({}, user, newInfo)
-  db.users[db.users.indexOf(user)] = newUserWithUpdates
-  return newUserWithUpdates
-}
-
-async function deleteUser(userId) {
-  const user = await getUser(userId)
-  db.users = db.users.filter(u => u.userId !== userId)
   return user
 }
 
@@ -114,7 +84,25 @@ const getOrder = async orderId => {
   }
   return order
 }
-const createOrder = async userId => ({ hi: userId })
+const createOrder = async userId => {
+  const user = await db.getUser(userId)
+  const cartItems = await db.getCartItemsByUser(userId)
+  if (!user || !cartItems) {
+    return null
+  }
+  const { password, ...safeUser } = user //eslint-disable-line
+  const orderLines = cartItems.map(item => ({ orderLineId: generate.id(), card: item.card, quantity: item.quantity }))
+  const order = {
+    orderId: generate.id(),
+    user: safeUser,
+    orderLines,
+    orderDate: new Date(Date.now()).toISOString(),
+  }
+  db.orders.push(order)
+  db.cartItems = db.cartItems.filter(cartItem => cartItem.userId !== userId)
+  return order
+}
+
 const getTotalSales = async () => {
   const total = db.orders.reduce((tot, order) => {
     order.orderLines.forEach(orderLine => {
@@ -124,7 +112,15 @@ const getTotalSales = async () => {
     return tot
   }, 0)
   if (total) {
-    return total.toFixed(2)
+    return total
+  }
+  return undefined
+}
+
+const getTotalProfit = async () => {
+  const total = 1000
+  if (total) {
+    return total
   }
   return undefined
 }
@@ -134,7 +130,9 @@ const getCardsSoldByCategory = async () => {
   const ordersByCategory = db.orders.reduce((arr, order) => {
     order.orderLines.forEach(orderLine => {
       const card = cards.filter(c => c.cardId === orderLine.card.cardId)[0]
-      arr.push({ category: card.category, quantity: orderLine.quantity })
+      if (card) {
+        arr.push({ category: card.category, quantity: orderLine.quantity })
+      }
     })
     return arr
   }, [])
@@ -216,8 +214,6 @@ const db = {
   insertUser,
   getUser,
   getUsers,
-  updateUser,
-  deleteUser,
   authenticateUser,
 
   insertCard,
@@ -229,6 +225,7 @@ const db = {
   getOrders,
   getOrder,
   getTotalSales,
+  getTotalProfit,
   getCardsSoldByCategory,
   createOrder,
 

@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
 exports.getCartItems = async (req, res) => {
   const cartItems = await db.getCartItemsByUser(intId(req, 'userId'))
   if (!cartItems) {
-    return res.status(404).send()
+    return res.status(404).send('User not found or user has no cart items')
   }
   return res.json(cartItems)
 }

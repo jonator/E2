@@ -26,6 +26,14 @@ exports.getTotalSales = async (req, res) => {
   res.status(404).send()
 }
 
+exports.getTotalProfit = async (req, res) => {
+  const totalProfit = await db.getTotalProfit()
+  if (totalProfit) {
+    return res.json({ total: totalProfit })
+  }
+  res.status(404).send()
+}
+
 exports.getCardsSoldByCategory = async (req, res) => {
   const cardsSoldByCategory = await db.getCardsSoldByCategory()
   if (cardsSoldByCategory) {
@@ -39,5 +47,5 @@ exports.createOrder = async (req, res) => {
   if (order) {
     return res.json(order)
   }
-  return res.status(404).send()
+  return res.status(404).send('User not found or user has no cart items')
 }
