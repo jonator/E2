@@ -18,9 +18,20 @@ exports.getOrder = async (req, res) => {
   return res.status(404).send()
 }
 
-exports.getOrderTotal = async (req, res) => {
-  const orderTotal = await db.getOrderTotal()
-  return res.json(orderTotal)
+exports.getTotalSales = async (req, res) => {
+  const totalSales = await db.getTotalSales()
+  if (totalSales) {
+    return res.json({ total: totalSales })
+  }
+  res.status(404).send()
+}
+
+exports.getTotalProfit = async (req, res) => {
+  const totalProfit = await db.getTotalProfit()
+  if (totalProfit) {
+    return res.json({ total: totalProfit })
+  }
+  res.status(404).send()
 }
 
 exports.getCardsSoldByCategory = async (req, res) => {
@@ -29,4 +40,12 @@ exports.getCardsSoldByCategory = async (req, res) => {
     return res.json(cardsSoldByCategory)
   }
   return res.status(404).send()
+}
+
+exports.createOrder = async (req, res) => {
+  const order = await db.createOrder(intId(req, 'userId'))
+  if (order) {
+    return res.json(order)
+  }
+  return res.status(404).send('User not found or user has no cart items')
 }

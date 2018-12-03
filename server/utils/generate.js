@@ -28,7 +28,8 @@ const generate = {
     cardId: faker.random.number(),
     title: faker.commerce.productName(),
     imageUrl: cardUrls[faker.random.number({ min: 0, max: cardUrls.length - 1 })],
-    cost: faker.random.number({ min: 100, max: 1500 }),
+    price: faker.random.number({ min: 100, max: 1500 }),
+    costToProduce: faker.random.number({ min: 25, max: 99 }),
     category: faker.commerce.productAdjective(),
   }),
   cards: numberToCreate => {
@@ -55,5 +56,4 @@ const generate = {
     ...overrides,
   }),
 }
-
 module.exports = generate

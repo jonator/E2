@@ -2,7 +2,6 @@ const express = require('express')
 const setupCardRoutes = require('./cards')
 const setupOrderRoutes = require('./orders')
 const setupUserRoutes = require('./users')
-const colors = require('../controllers/colors')
 
 function setupRoutes(app) {
   const cardRouter = express.Router()
@@ -16,7 +15,5 @@ function setupRoutes(app) {
   const orderRouter = express.Router()
   setupOrderRoutes(orderRouter)
   app.use('/api/orders', orderRouter)
-
-  app.get('/api/colors', colors.color)
 }
 module.exports = setupRoutes
