@@ -4,11 +4,13 @@ const generate = require('./generate')
 
 async function insertUser(user) {
   const newUser = {
-    ...user,
     userId: generate.id(),
+    ...user,
+    isAdmin: false,
   }
   db.users.push(newUser)
-  return newUser
+  const { password, ...safeUser } = newUser // eslint-disable-line
+  return safeUser
 }
 
 async function getUsers(filter) {
@@ -56,7 +58,8 @@ async function authenticateUser(auth) {
     return null
   }
   if (user.password === auth.password) {
-    return user
+    const { password, ...safeUser } = user // eslint-disable-line
+    return safeUser
   }
   return undefined
 }
@@ -65,8 +68,8 @@ async function authenticateUser(auth) {
 
 async function insertCard(card) {
   const newCard = {
-    ...card,
     cardId: generate.id(),
+    ...card,
   }
   db.cards.push(newCard)
   return newCard
@@ -111,6 +114,7 @@ const getOrder = async orderId => {
   }
   return order
 }
+const createOrder = async userId => ({ hi: userId })
 const getTotalSales = async () => {
   const total = db.orders.reduce((tot, order) => {
     order.orderLines.forEach(orderLine => {
@@ -149,7 +153,15 @@ const getCardsSoldByCategory = async () => {
 /** Cart */
 
 const getCartItemsByUser = async userId => {
-  const cartItems = userId ? db.cartItems.filter(cartItem => cartItem.userId === userId) : [...db.cartItems]
+  const cards = await getCards()
+  const cartItems = userId
+    ? db.cartItems
+      .filter(cartItem => cartItem.userId === userId)
+      .map(cartItem => {
+        const card = cards.filter(c => c.cardId === cartItem.cardId)[0]
+        return { card, quantity: cartItem.quantity }
+      })
+    : [...db.cartItems]
   if (cartItems.length === 0) {
     return null
   }
@@ -166,6 +178,11 @@ const deleteCartItemsByUser = async userId => {
 }
 
 const insertCartItem = async cartItem => {
+  const card = await getCard(cartItem.cardId)
+  const user = await getUser(cartItem.userId)
+  if (!card || !user) {
+    return null
+  }
   db.cartItems.push(cartItem)
   return cartItem
 }
@@ -186,7 +203,7 @@ async function deleteCartItem(userId, cardId) {
   if (!cartItem) {
     return null
   }
-  db.cartItems = db.cartItems.filter(i => i.userId !== userId && i.cardId !== cardId)
+  db.cartItems = db.cartItems.filter(i => !(i.userId === userId && i.cardId === cardId))
   return cartItem
 }
 
@@ -213,6 +230,7 @@ const db = {
   getOrder,
   getTotalSales,
   getCardsSoldByCategory,
+  createOrder,
 
   getCartItemsByUser,
   deleteCartItemsByUser,

@@ -29,7 +29,7 @@ exports.updateCard = async (req, res) => {
 exports.deleteCard = async (req, res) => {
   const deletedCard = await db.deleteCard(intId(req, 'cardId'))
   if (deletedCard) {
-    return res.json(deletedCard)
+    return res.send()
   }
   return res.status(404).send()
 }

@@ -33,3 +33,11 @@ exports.getCardsSoldByCategory = async (req, res) => {
   }
   return res.status(404).send()
 }
+
+exports.createOrder = async (req, res) => {
+  const order = await db.createOrder(intId(req, 'userId'))
+  if (order) {
+    return res.json(order)
+  }
+  return res.status(404).send()
+}

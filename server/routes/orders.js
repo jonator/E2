@@ -5,6 +5,7 @@ function setupOrderRoutes(router) {
   router.get('/totalSales', ordersController.getTotalSales)
   router.get('/cardsSoldByCategory', ordersController.getCardsSoldByCategory)
   router.get('/:orderId', ordersController.getOrder)
+  router.post('/:userId', ordersController.createOrder)
 }
 
 module.exports = setupOrderRoutes
