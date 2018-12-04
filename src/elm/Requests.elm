@@ -1,7 +1,8 @@
 module Requests exposing (..)
 
 import Coders exposing (..)
-import Json.Decode as JD exposing (Decoder)
+import Json.Decode as JD exposing (Decoder, field)
+import Json.Encode as JE
 import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString, expectJson)
 import Types exposing (..)
 
@@ -158,10 +159,19 @@ createUser firstName lastName email password hook =
 getAllOrders : (Result String (List Types.Order) -> msg) -> Cmd msg
 getAllOrders hook =
     Http.get (fullPath ++ "orders") Coders.decodeOrderList
-        |> Http.send (processOrderResult hook)
+        |> Http.send (processOrderListResult hook)
 
 
-processOrderResult : (Result String (List Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
+processOrderListResult : (Result String (List Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
+processOrderListResult message res =
+    case res of
+        Ok order ->
+            message <| Ok (List.map apiOrderToElmOrder order)
+
+        Err httpErr ->
+            message <| Err <| httpErrToString httpErr
+
+processOrderResult : (Result String (Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
 processOrderResult message res =
     case res of
         Ok order ->
@@ -170,10 +180,23 @@ processOrderResult message res =
         Err httpErr ->
             message <| Err <| httpErrToString httpErr
 
+getTotalSales : (Result String Int -> msg) -> Cmd msg
+getTotalSales hook = 
+    Http.send (processResult hook) <| Http.get (fullPath ++ "orders/totalSales") (field "total" JD.int)
 
+getTotalProfit : (Result String Int -> msg) -> Cmd msg
+getTotalProfit hook = 
+    Http.send (processResult hook) <| Http.get (fullPath ++ "orders/totalProfit") (field "total" JD.int)
 
+getCardsSoldByCategory : (Result String (List CardsSoldByCategory) -> msg) -> Cmd msg
+getCardsSoldByCategory hook =
+    Http.send (processResult hook) <| Http.get (fullPath ++ "orders/cardsSoldByCategory") decodeCardsSoldByCategory
+
+createOrder : String -> (Result String Types.Order -> msg) -> Cmd msg
+createOrder userId hook = 
+    Http.post (fullPath ++ "users") (jsonBody <| JE.int userId) decodeOrder
+        |> Http.send (processOrderResult hook)
 --Resquest Types
-
 
 deleteRequest : String -> Request String
 deleteRequest url =

@@ -69,10 +69,18 @@ decodeApiUser =
         (field "email" JD.string)
         (field "isAdmin" JD.bool)
 
+decodeCardsSoldByCategory : Decoder (List CardsSoldByCategory)
+decodeCardsSoldByCategory =
+    JD.list 
+        (JD.map2 CardsSoldByCategory 
+            (field "category" JD.string)
+            (field "quantity" JD.int)
+        )
+
 
 processApiUserToElmUser : ApiUser -> User
 processApiUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.isAdmin Dict.empty
+    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email apiUser.isAdmin Dict.empty
 
 
 encodeUser : String -> String -> String -> String -> Value
