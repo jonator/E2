@@ -155,24 +155,12 @@ GO;
 --Gets all past orders in DB
 CREATE PROCEDURE getAllOrders
 AS
-SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, C.Category, OL.Quantity
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity
 FROM Project.[Order] O
-	INNER JOIN
-	(
-		SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin
-		FROM Project.[User] U
-	) U ON U.UserID = O.UserID
+	INNER JOIN Project.[User] U ON U.UserID = O.UserID
 	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
-	INNER JOIN
-	(
-		SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
-			(
-				SELECT CC.Category
-				FROM Project.CardCategory CC
-				WHERE C.CategoryID = CC.CategoryID
-			) AS Category
-		FROM Project.Card C
-	) C ON C.CardID = OL.CardID
+	INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	INNER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
 ORDER BY O.OrderID ASC
 GO;
 
@@ -190,4 +178,46 @@ FROM Project.CartItems CI
 WHERE CI.UserID = @UserID
 
 EXEC removeAllFromCart @UserID
+GO;
+
+--Returns the total sales in $, does not account for cost to produce
+CREATE PROCEDURE totalSales
+AS
+DECLARE @Sales DECIMAL(10,2) = 
+	(
+		SELECT SUM(OL.Quantity * C.Price)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+SELECT @Sales AS total
+GO;
+
+--Returns the total profits after the cost to produce each card
+CREATE PROCEDURE totalProfit
+AS
+DECLARE @Sales DECIMAL(10,2) = 
+	(
+		SELECT SUM(OL.Quantity * C.Price)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+
+DECLARE @Cost DECIMAL(10,2) = 
+	(
+		SELECT SUM(OL.Quantity * C.CostToProduce)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+SELECT (@Sales - @Cost) AS total
+GO;
+
+--Returns the number of cards sold in each category
+CREATE PROCEDURE cardsSoldByCategory
+AS
+	SELECT CC.Category, ISNULL(SUM(OL.Quantity), 0) AS Quantity
+	FROM Project.OrderLines OL
+		INNER JOIN Project.Card C ON C.CardID = OL.CardID
+		RIGHT OUTER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
+	GROUP BY CC.CategoryID, CC.Category
+	Order BY CC.CategoryID ASC
 GO;
