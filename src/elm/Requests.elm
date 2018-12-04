@@ -1,8 +1,8 @@
 module Requests exposing (..)
 
 import Coders exposing (..)
-import Json.Decode as JD
-import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString)
+import Json.Decode as JD exposing (Decoder)
+import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString, expectJson)
 import Types exposing (..)
 
 
@@ -75,9 +75,9 @@ createCard title imageUrl cost costToProduce category hook =
         |> Http.send (processResult hook)
 
 
-updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
+updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String Card -> msg) -> Cmd msg
 updateCard cardId title imageUrl cost costToProduce category hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category )
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category ) decodeCard
         |> Http.send (processResult hook)
 
 
@@ -99,7 +99,7 @@ authenticateUser email password hook =
 
 registerUser : String -> String -> String -> String -> (Result String User -> msg) -> Cmd msg
 registerUser email firstName lastName password hook =
-    Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password True) decodeApiUser
+    Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password) decodeApiUser
         |> Http.send (processUserResult hook)
 
 
@@ -116,48 +116,20 @@ processUserResult message res =
 
 --Cart
 
-
-processCartResult : (Result String (List (CartItem Card)) -> msg) -> Result Http.Error (List ApiCartItem) -> msg
-processCartResult message res =
-    case res of
-        Ok cart ->
-            message <| Ok (List.map apiCartItemToElmCartItem cart)
-
-        Err httpErr ->
-            message <| Err <| httpErrToString httpErr
-
-
-processCartItemResult : (Result String (CartItem Card) -> msg) -> Result Http.Error ApiCartItem -> msg
-processCartItemResult message res =
-    case res of
-        Ok cartItem ->
-            message <| Ok <| apiCartItemToElmCartItem cartItem
-
-        Err httpErr ->
-            message <| Err <| httpErrToString httpErr
-
-
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-        Http.get (fullPath ++ "cartItems/" ++ (toString userId)) Coders.decodeCartItemList
-            |> Http.send (processCartResult hook)
-
-
-getCartItem : Int -> Int -> (Result String (CartItem Card) -> msg) -> Cmd msg
-getCartItem cartId cardId hook =
-    Http.get (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId)) Coders.decodeCartItem
-        |> Http.send (processCartItemResult hook)
-
+        Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
+            |> Http.send (processResult hook)
 
 deleteCartItems : Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItems cartId hook =
-    deleteRequest (fullPath ++ "cartItems/" ++ (toString cartId))
+    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString cartId))
         |> Http.send (processResult hook)
 
 
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItem cartId cardId hook =
-    deleteRequest (fullPath ++ "cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
+    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
         |> Http.send (processResult hook)
 
 
@@ -167,15 +139,15 @@ createCartItem userId cardId quantity hook =
         |> Http.send (processResult hook)
 
 
-updateCartItem : Int -> Int -> Int -> (Result String String -> msg) -> Cmd msg
+updateCartItem : Int -> Int -> Int -> (Result String (CartItem Card) -> msg) -> Cmd msg
 updateCartItem userId cardId quantity hook =
-    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity)
+    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) decodeCartItem
         |> Http.send (processResult hook)
 
 
-createUser : String -> String -> String -> String -> Bool -> (Result String String -> msg) -> Cmd msg
-createUser firstName lastName email password isAdmin hook =
-    Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password isAdmin) JD.string
+createUser : String -> String -> String -> String -> (Result String String -> msg) -> Cmd msg
+createUser firstName lastName email password hook =
+    Http.post (fullPath ++ "users") (jsonBody <| encodeUser firstName lastName email password) JD.string
         |> Http.send (processResult hook)
 
 
@@ -216,14 +188,14 @@ deleteRequest url =
         }
 
 
-putRequest : String -> Body -> Request String
-putRequest url body =
+putRequest : String -> Body -> Decoder a -> Request a
+putRequest url body decoder =
     request
         { method = "PUT"
         , headers = []
         , url = url
         , body = body
-        , expect = expectString
+        , expect = expectJson decoder
         , timeout = Nothing
         , withCredentials = False
         }
