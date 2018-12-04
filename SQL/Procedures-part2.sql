@@ -176,6 +176,7 @@ FROM Project.[Order] O
 ORDER BY O.OrderID ASC
 GO;
 
+--Creates a new order from all items in cart items that are associated with specific userID, then removes items from cart
 CREATE PROCEDURE createOrder @UserID INT
 AS
 INSERT Project.[Order](UserID)
