@@ -11,7 +11,8 @@ import Types exposing (..)
 
 authority : String
 authority =
-    "http://localhost:3000/"
+    "https://cis560final.herokuapp.com/"
+    --"http://localhost:3000/"
 
 
 apiPath : String
