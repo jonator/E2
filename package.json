@@ -24,7 +24,6 @@
     "test": "standard server/**/*.js src/**/*.js && elm-test",
     "start": "nodemon server/main --watch",
     "prod": "cross-env NODE_ENV=production PORT=3000 node server/main",
-    "postinstall": "elm-package install",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack --progress --profile --colors",
     "lint": "eslint"
   },
