@@ -153,8 +153,40 @@ GO;
 /* Orders */
 
 --Gets all past orders in DB
-CREATE PROCEDURE getOrders
+CREATE PROCEDURE getAllOrders
 AS
-SELECT * 
-FROM Project.[Order]
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, C.Category, OL.Quantity
+FROM Project.[Order] O
+	INNER JOIN
+	(
+		SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin
+		FROM Project.[User] U
+	) U ON U.UserID = O.UserID
+	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
+	INNER JOIN
+	(
+		SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+			(
+				SELECT CC.Category
+				FROM Project.CardCategory CC
+				WHERE C.CategoryID = CC.CategoryID
+			) AS Category
+		FROM Project.Card C
+	) C ON C.CardID = OL.CardID
+ORDER BY O.OrderID ASC
+GO;
+
+CREATE PROCEDURE createOrder @UserID INT
+AS
+INSERT Project.[Order](UserID)
+VALUES (@UserID);
+
+DECLARE @last int = SCOPE_IDENTITY()  
+
+INSERT Project.OrderLines(OrderID, CardID, Quantity)
+SELECT @last, CI.CardID, CI.Quantity
+FROM Project.CartItems CI
+WHERE CI.UserID = @UserID
+
+EXEC removeAllFromCart @UserID
 GO;
