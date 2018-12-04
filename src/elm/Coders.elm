@@ -70,12 +70,12 @@ decodeCartItem =
         (field "price" JD.int)
         (field "costToProduce" JD.int)
         (field "category" JD.string)
-        (field "quantity" JD.int)
 
 
 decodeCartItemList : Decoder (List ApiCartItem)
 decodeCartItemList =
     JD.list decodeCartItem
+
 
 
 apiCartItemToElmCartItem : ApiCartItem -> CartItem Card
@@ -119,34 +119,26 @@ encodeUser firstName lastName email password isAdmin =
         ]
 
 
-encodeNewCard : String -> String -> Int -> String -> Int -> Value
-encodeNewCard title imageUrl cost category userId =
+encodeNewCard : String -> String -> Int -> Int -> String -> Value
+encodeNewCard title imageUrl cost costToProduce category  =
     object
-        [ ( "card"
-          , object
-                [ ( "title", JE.string title )
-                , ( "imageUrl", JE.string imageUrl )
-                , ( "cost", JE.int cost )
-                , ( "category", JE.string category )
-                ]
-          )
-        , ( "userId", JE.int userId )
+        [ ( "title", JE.string title )
+        , ( "imageUrl", JE.string imageUrl )
+        , ( "price", JE.int cost )
+        , ( "costToProduce", JE.int costToProduce )
+        , ( "category", JE.string category )
         ]
 
 
-encodeUpdatedCard : Int -> String -> String -> Int -> String -> Int -> Value
-encodeUpdatedCard cardId title imageUrl cost category userId =
+encodeUpdatedCard : Int -> String -> String -> Int  -> Int -> String -> Value
+encodeUpdatedCard cardId title imageUrl cost costToProduce category =
     object
-        [ ( "card"
-          , object
-                [ ( "cardId", JE.int cardId )
-                , ( "title", JE.string title )
-                , ( "imageUrl", JE.string imageUrl )
-                , ( "cost", JE.int cost )
-                , ( "category", JE.string category )
-                ]
-          )
-        , ( "userId", JE.int userId )
+        [ ( "cardId", JE.int cardId )
+        , ( "title", JE.string title )
+        , ( "imageUrl", JE.string imageUrl )
+        , ( "cost", JE.int cost )
+        , ( "costToProduce", JE.int costToProduce )
+        , ( "category", JE.string category )
         ]
 
 

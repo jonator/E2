@@ -69,21 +69,21 @@ getCard userId hook =
         |> Http.send (processResult hook)
 
 
-createCard : String -> String -> Int -> String -> Int -> (Result String String -> msg) -> Cmd msg
-createCard title imageUrl cost category userId hook =
-    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost category userId) JD.string
+createCard : String -> String -> Int  -> Int -> String -> (Result String String -> msg) -> Cmd msg
+createCard title imageUrl cost costToProduce category hook =
+    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category ) JD.string
         |> Http.send (processResult hook)
 
 
-updateCard : Int -> String -> String -> Int -> String -> Int -> (Result String String -> msg) -> Cmd msg
-updateCard cardId title imageUrl cost category userId hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost category userId)
+updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
+updateCard cardId title imageUrl cost costToProduce category hook =
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category )
         |> Http.send (processResult hook)
 
 
-deleteCard : Int -> Int -> (Result String String -> msg) -> Cmd msg
-deleteCard cardId userId hook =
-    deleteRequest (fullPath ++ "cards?" ++ "cardId=" ++ (toString cardId) ++ "&" ++ "userId=" ++ (toString userId))
+deleteCard : Int ->(Result String String -> msg) -> Cmd msg
+deleteCard cardId hook =
+    deleteRequest (fullPath ++ "cards/" ++ (toString cardId))
         |> Http.send (processResult hook)
 
 
@@ -139,10 +139,6 @@ processCartItemResult message res =
 
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-    let
-        i =
-            Debug.log "userId" userId
-    in
         Http.get (fullPath ++ "cartItems/" ++ (toString userId)) Coders.decodeCartItemList
             |> Http.send (processCartResult hook)
 
