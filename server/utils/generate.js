@@ -12,13 +12,10 @@ const cardUrls = [
   'https://cdn.shopify.com/s/files/1/0558/4569/products/PC203-BIGSTAR_400x.jpg?v=1422897871',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/PC234-BDAYFORECAST_400x.jpg?v=1446402589',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/ALPHA-BLK-WIDE_400x.jpg?v=1438884418',
-  'https://cdn.shopify.com/s/files/1/0558/4569/products/BROWSER-HISTORY1_400x.jpg?v=1420127498',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/BDAY-WISHES1_400x.jpg?v=1508964914',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/HEART-GOLD-WIDE_400x.jpg?v=1438884573',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/CAT-ANGEL_400x.jpg?v=1404246149',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/CARPE-DIEM-WIDE_400x.jpg?v=1438884451',
-  'https://cdn.shopify.com/s/files/1/0558/4569/products/PC215-BUTTTHANKS_400x.jpg?v=1422899073',
-  'https://cdn.shopify.com/s/files/1/0558/4569/products/CLUB-BABY2_400x.jpg?v=1404234539',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/JOY1_400x.jpg?v=1446490387',
   'https://cdn.shopify.com/s/files/1/0558/4569/products/CHEERS-WHT_400x.jpg?v=1416259320',
 ]
