@@ -1,39 +1,166 @@
-$baseColor : white;
-
-html {
-  height: 100%
-}
-
 body {
-  background-color: $baseColor;
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.main {
   height: 100%;
-  margin: 0
+  display: grid;
+  grid-template-rows: 75px 1fr;
 }
 
-.container {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-
-.actions {
-  flex: none;
-  max-width: 50%;
-}
-
-.btn {
-  border-radius: 4px;
-  background-color: #FFFFFF; /* Green */
-  border: none;
-  color: #333333;
-  display: inline-block;
-  font-weight: 300;
-  font-size: 16px;
-  padding: 15px 32px;
+.button {
+  font-size: 20px;
+  border-width: 4px;
+  border-radius: 2px;
   text-align: center;
-  text-decoration: none;
+  background: white;
+  cursor: pointer;
+  &:hover {
+    background-color: lightblue;
+  }
 }
 
-button:hover {cursor: pointer}
-button:focus {outline:0;}
+.header {
+  background-color: lightblue;
+  font-size: 30px;
+  display: grid;
+  grid-template-columns: 9fr 1fr 1fr 1fr;
+  .button {
+    padding-top: 20px;
+  }
+  padding-left: 20px;
+}
+
+.title-text {
+  cursor: pointer;
+  &:hover {
+    color: white;
+  }
+}
+
+.content {
+  width: 60%;
+  margin: 0 auto;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+.cards {
+  display: grid;
+  grid-row-gap: 20px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: lighten(lightblue, 20);
+  cursor: pointer;
+
+  .info {
+    padding: 20px;
+    display: grid;
+  }
+}
+
+.sign-in-wrapper {
+  display: inline-flex;
+  width: 100%;
+  padding: 20px;
+
+  input {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    padding-top: 10px;
+  }
+
+  .sign-in {
+    position: relative;
+    .inputs {
+      display: grid;
+      grid-row-gap: 20px;
+    }
+  }
+
+  .bad-auth {
+    color: red;
+  }
+
+  .bad-reg {
+    color: red;
+  }
+
+  .register {
+    left: 50%;
+    position: relative;
+    .inputs {
+      display: grid;
+      grid-row-gap: 20px;
+    }
+  }
+}
+
+.admin {
+  display: grid;
+  grid-template-rows: 20px;
+
+  .order-list {
+    display: grid;
+    grid-template-rows: 20px;
+
+    .order {
+      border-bottom: 5px solid lightblue;
+      padding-top: 20px;
+      padding-bottom: 20px;
+
+      .order-user {
+        display: inline-flex;
+        padding-left: 40px;
+        div {
+          padding-right: 5px;
+          padding-left: 10px;
+
+        }
+      }
+
+      .order-line {
+        border-bottom: 1px dotted lightgrey;
+      }
+    }
+  }
+
+  .total-sales {
+    padding: 20px;
+    font-size: 30px;
+    border-top: 5px solid black;
+  }
+
+  .order-count {
+    padding-left: 20px;
+  }
+
+  .total-profit {
+    padding: 20px;
+    font-size: 30px;
+  }
+}
+
+.admin-actions {
+  padding: 50px 200px;
+  display: grid;
+  grid-gap: 30px;
+  width: 500px;
+  justify-content: center;
+
+  .edit-card-wrapper {
+    display: inline-flex;
+    justify-content: space-between;
+  }
+
+  .delete-card-wrapper {
+    display: inline-flex;
+    justify-content: space-between;
+  }
+}
