@@ -1,14 +1,14 @@
 CREATE PROCEDURE getAllCards
 AS
 SELECT * 
-FROM Project.Product
+FROM Project.Card
 GO;
 
 CREATE PROCEDURE getSingleCard @Card nvarchar(30)
 AS
 SELECT * 
-FROM Project.Product
-WHERE ProductName = @Card
+FROM Project.Card
+WHERE Title = @Card
 GO;
 
 CREATE PROCEDURE getCart @User nvarchar(30)
@@ -25,11 +25,11 @@ FROM Project.CartItems
 WHERE UserID = @User
 GO;
 
-CREATE PROCEDURE removeFromCart @User INT, @Product INT
+CREATE PROCEDURE removeFromCart @User INT, @Card INT
 AS
 DELETE 
 FROM Project.CartItems
-WHERE UserID = @User AND ProductID = @Product
+WHERE UserID = @User AND CardID = @Card
 GO;
 
 CREATE PROCEDURE getOrders
@@ -37,4 +37,3 @@ AS
 SELECT * 
 FROM Project.[Order]
 GO;
-
