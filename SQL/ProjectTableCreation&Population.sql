@@ -2,13 +2,13 @@ DROP TABLE IF EXISTS Project.CartItems;
 DROP TABLE IF EXISTS Project.OrderLines;
 DROP TABLE IF EXISTS Project.[Order];
 DROP TABLE IF EXISTS Project.[User];
-DROP TABLE IF EXISTS Project.Product;
-DROP TABLE IF EXISTS Project.ProductCategory;
+DROP TABLE IF EXISTS Project.[Card];
+DROP TABLE IF EXISTS Project.CardCategory;
 
-CREATE TABLE Project.ProductCategory
+CREATE TABLE Project.CardCategory
 (
 	CategoryID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
-	[Description] NVARCHAR(128) NOT NULL
+	Category NVARCHAR(128) NOT NULL
 );
 
 CREATE TABLE Project.[User]
@@ -17,7 +17,7 @@ CREATE TABLE Project.[User]
 	FirstName NVARCHAR(32) NOT NULL,
 	LastName NVARCHAR(32) NOT NULL,
 	Email NVARCHAR(128) NOT NULL,
-	IsAdmin BIT NOT NULL,
+	IsAdmin BIT NOT NULL DEFAULT 0,
 	[Password] NVARCHAR(32) NOT NULL,
 	CreatedOn DATETIMEOFFSET NOT NULL DEFAULT(SYSDATETIMEOFFSET()),
 
@@ -31,37 +31,39 @@ CREATE TABLE Project.[Order]
 	OrderDate DATETIMEOFFSET NOT NULL DEFAULT(SYSDATETIMEOFFSET())
 );
 
-CREATE TABLE Project.Product
+CREATE TABLE Project.Card
 (
-	ProductID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
-	ProductName NVARCHAR(32) NOT NULL,
-	CategoryID INT NOT NULL REFERENCES Project.ProductCategory(CategoryID),
-	UnitPrice NVARCHAR(8) NOT NULL,
+	CardID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
+	Title NVARCHAR(32) NOT NULL,
+	ImageURL NVARCHAR(64) NOT NULL DEFAULT N'i.imgur.com/lixxOdP.jpg',
+	Price DECIMAL(8,2) NOT NULL,
+	CostToProduce DECIMAL(8,2) NOT NULL,
+	CategoryID INT NOT NULL REFERENCES Project.CardCategory(CategoryID)
 
-	UNIQUE(ProductName ASC)
+	UNIQUE(Title ASC)
 );
 
 CREATE TABLE Project.CartItems
 (
 	UserID INT NOT NULL REFERENCES Project.[User](UserID),
-	ProductID INT NOT NULL REFERENCES Project.Product(ProductID),
-	Quantity NVARCHAR(128) NOT NULL,
+	CardID INT NOT NULL REFERENCES Project.Card(CardID),
+	Quantity INT NOT NULL,
 
-	PRIMARY KEY(UserID, ProductID)
+	PRIMARY KEY(UserID, CardID)
 );
 
 CREATE TABLE Project.OrderLines
 (
-	OrderLinesID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
+	OrderLineID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
 	OrderID INT NOT NULL REFERENCES Project.[Order](OrderID),
-	ProductID INT NOT NULL REFERENCES Project.Product(ProductID),
-	Quantity NVARCHAR(8) NOT NULL,
+	CardID INT NOT NULL REFERENCES Project.Card(CardID),
+	Quantity INT NOT NULL,
 
-	UNIQUE(OrderID, ProductID ASC)
+	UNIQUE(OrderID, CardID ASC)
 );
 
 
-INSERT Project.ProductCategory (Description)
+INSERT Project.CardCategory (Category)
 VALUES
 		('Birthday'),
 		('Graduation'),
@@ -75,76 +77,77 @@ VALUES
 		('Mothers Day'),
 		('Valentines Day'),
 		('Condolences'),
-		('Thinking of You');
+		('Thinking of You'),
+		('Saturnalia');
 
 SELECT *
-FROM Project.ProductCategory
+FROM Project.CardCategory
 
-INSERT Project.Product (ProductName, CategoryID, UnitPrice)
+INSERT Project.Card (Title, CategoryID, Price, CostToProduce)
 VALUES
-		('Birthday-Plain',1,3.00),
-		('Birthday-Embellished',1,5.00),
-		('1st',1,4.00),
-		('16th',1,4.00),
-		('21st',1,4.00),
-		('30th',1,4.00),
-		('40th',1,4.00),
-		('50th',1,4.00),
-		('60th',1,4.00),
-		('70th',1,4.00),
-		('80th',1,4.00),
-		('90th',1,4.00),
-		('100th',1,4.00),
-		('Graduation-Plain',2,3.00),
-		('Graduation-Embellished',2,5.00),
-		('Middle School',2,4.00),
-		('High School',2,4.00),
-		('College',2,4.00),
-		('Graduate School',2,4.00),
-		('Military Academy',2,4.00),
-		('Anniversary-Plain',3,3.00),
-		('Anniversary-Embellished',3,5.00),
-		('Wedding',3,4.00),
-		('Silver',3,4.00),
-		('Golden',3,4.00),
-		('Thank You-Plain',4,3.00),
-		('Thank You-Embellished',4,5.00),
-		('Get Well-Plain',5,3.00),
-		('Get Well-Embellished',5,5.00),
-		('New Baby-Plain',6,3.00),
-		('New Baby-Embellished',6,5.00),
-		('Christmas-Plain',7,3.00),
-		('Christmas-Embellished',7,5.00),
-		('Santa',7,4.00),
-		('Snowman',7,4.00),
-		('Reindeer',7,4.00),
-		('Elf',7,4.00),
-		('Gingerbread Man',7,4.00),
-		('Easter-Plain',8,3.00),
-		('Easter-Embellished',8,5.00),
-		('Bunny',8,4.00),
-		('Eggs',8,4.00),
-		('Flowers',8,4.00),
-		('Fathers Day-Plain',9,3.00),
-		('Fathers Day-Embellished',9,5.00),
-		('Grandfather',9,4.00),
-		('Mothers Day-Plain',10,3.00),
-		('Mothers Day-Embellished',10,5.00),
-		('Grandmother',10,4.00),
-		('Valentines Day-Plain',11,3.00),
-		('Valentines Day-Embellished',11,5.00),
-		('Boyfriend',11,4.00),
-		('Girlfriend',11,4.00),
-		('Husband',11,4.00),
-		('Wife',11,4.00),
-		('Condolences-Plain',12,3.00),
-		('Condolences-Embellished',12,5.00),
-		('Thinking of You-Plain',13,3.00),
-		('Thinking of You-Embellished',13,5.00);
+		('Birthday-Plain',1,3.00,0.50),
+		('Birthday-Embellished',1,5.00,0.50),
+		('1st',1,4.00,0.50),
+		('16th',1,4.00,0.50),
+		('21st',1,4.00,0.50),
+		('30th',1,4.00,0.50),
+		('40th',1,4.00,0.50),
+		('50th',1,4.00,0.50),
+		('60th',1,4.00,0.50),
+		('70th',1,4.00,0.50),
+		('80th',1,4.00,0.50),
+		('90th',1,4.00,0.50),
+		('100th',1,4.00,0.50),
+		('Graduation-Plain',2,3.00,0.50),
+		('Graduation-Embellished',2,5.00,0.50),
+		('Middle School',2,4.00,0.50),
+		('High School',2,4.00,0.50),
+		('College',2,4.00,0.50),
+		('Graduate School',2,4.00,0.50),
+		('Military Academy',2,4.00,0.50),
+		('Anniversary-Plain',3,3.00,0.50),
+		('Anniversary-Embellished',3,5.00,0.50),
+		('Wedding',3,4.00,0.50),
+		('Silver',3,4.00,0.50),
+		('Golden',3,4.00,0.50),
+		('Thank You-Plain',4,3.00,0.50),
+		('Thank You-Embellished',4,5.00,0.50),
+		('Get Well-Plain',5,3.00,0.50),
+		('Get Well-Embellished',5,5.00,0.50),
+		('New Baby-Plain',6,3.00,0.50),
+		('New Baby-Embellished',6,5.00,0.50),
+		('Christmas-Plain',7,3.00,0.50),
+		('Christmas-Embellished',7,5.00,0.50),
+		('Santa',7,4.00,0.50),
+		('Snowman',7,4.00,0.50),
+		('Reindeer',7,4.00,0.50),
+		('Elf',7,4.00,0.50),
+		('Gingerbread Man',7,4.00,0.50),
+		('Easter-Plain',8,3.00,0.50),
+		('Easter-Embellished',8,5.00,0.50),
+		('Bunny',8,4.00,0.50),
+		('Eggs',8,4.00,0.50),
+		('Flowers',8,4.00,0.50),
+		('Fathers Day-Plain',9,3.00,0.50),
+		('Fathers Day-Embellished',9,5.00,0.50),
+		('Grandfather',9,4.00,0.50),
+		('Mothers Day-Plain',10,3.00,0.50),
+		('Mothers Day-Embellished',10,5.00,0.50),
+		('Grandmother',10,4.00,0.50),
+		('Valentines Day-Plain',11,3.00,0.50),
+		('Valentines Day-Embellished',11,5.00,0.50),
+		('Boyfriend',11,4.00,0.50),
+		('Girlfriend',11,4.00,0.50),
+		('Husband',11,4.00,0.50),
+		('Wife',11,4.00,0.50),
+		('Condolences-Plain',12,3.00,0.50),
+		('Condolences-Embellished',12,5.00,0.50),
+		('Thinking of You-Plain',13,3.00,0.50),
+		('Thinking of You-Embellished',13,5.00,0.50);
 
 
 SELECT *
-FROM Project.Product
+FROM Project.Card
 
 
 INSERT Project.[User] (FirstName, LastName, Email, IsAdmin, [Password])
@@ -280,18 +283,18 @@ DECLARE @orderLineCount INT = 1;
 
 WHILE(SELECT COUNT(*) FROM Project.OrderLines) < @orderCount
 BEGIN
-INSERT Project.OrderLines (OrderID, ProductID, Quantity)
+INSERT Project.OrderLines (OrderID, CardID, Quantity)
 VALUES
 	(
 		
 		@orderLineCount,
 
 		(
-			SELECT ProductID FROM (
-			SELECT ROW_NUMBER() OVER(ORDER BY ProductID) [row], ProductID
-			FROM Project.Product
+			SELECT CardID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY CardID) [row], CardID
+			FROM Project.Card
 			) t 
-			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Product)
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Card)
 		),
 		CAST(RAND()*10 as INT)+1
 	)
@@ -301,7 +304,7 @@ END
 
 WHILE(SELECT COUNT(*) FROM Project.OrderLines) < 800
 BEGIN
-INSERT Project.OrderLines (OrderID, ProductID, Quantity)
+INSERT Project.OrderLines (OrderID, CardID, Quantity)
 VALUES
 	(
 		(
@@ -313,11 +316,11 @@ VALUES
 		),
 
 		(
-			SELECT ProductID FROM (
-			SELECT ROW_NUMBER() OVER(ORDER BY ProductID) [row], ProductID
-			FROM Project.Product
+			SELECT CardID FROM (
+			SELECT ROW_NUMBER() OVER(ORDER BY CardID) [row], CardID
+			FROM Project.Card
 			) t 
-			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Product)
+			WHERE t.row = 1 + (SELECT CAST(RAND() * COUNT(*) as INT) FROM Project.Card)
 		),
 		CAST(RAND()*10 as INT)+1
 	)
@@ -329,7 +332,7 @@ FROM Project.OrderLines
 ORDER BY OrderID
 
 
-INSERT Project.CartItems (UserID, ProductID, Quantity)
+INSERT Project.CartItems (UserID, CardID, Quantity)
 VALUES
 		(20, 12, 3),
 		(20, 5, 2),
