@@ -57,7 +57,7 @@ SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
 		SELECT CC.Category
 		FROM Project.CardCategory CC
 		WHERE C.CategoryID = CC.CategoryID
-	)
+	) AS Category
 FROM Project.Card C
 WHERE C.CardID = @CardID
 GO;
@@ -70,30 +70,89 @@ WHERE CardID = @CardID
 GO;
 
 
+
 /* Users */
 
---Returns all lines associated with specific userID
-CREATE PROCEDURE getCart @User nvarchar(30)
+--Returns UserID of associated email and password are correct
+CREATE PROCEDURE authenticateUser @email nvarchar(32), @password nvarchar(32)
 AS
-SELECT * 
-FROM Project.CartItems
-WHERE UserID = @User
+SELECT U.UserID
+FROM Project.[User] U
+WHERE U.Email = @email AND U.Password = @password
 GO;
 
-CREATE PROCEDURE removeAllFromCart @User INT
+--Returns all cart lines associated with specific userID
+CREATE PROCEDURE getCart @UserID nvarchar(30)
+AS
+SELECT A.CardID, A.Title, A.ImageURL, A.Price, A.CostToProduce, A.Category, CI.Quantity
+FROM Project.CartItems CI
+	INNER JOIN
+	(
+		SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+		(
+			SELECT CC.Category
+			FROM Project.CardCategory CC
+			WHERE C.CategoryID = CC.CategoryID
+		) AS Category
+		FROM Project.Card C
+	) A ON A.CardID = CI.CardID
+WHERE UserID = @UserID
+GO;
+
+--Removes a specific item from a specific user's cart
+CREATE PROCEDURE removeFromCart @UserID INT, @CardID INT
 AS
 DELETE 
 FROM Project.CartItems
-WHERE UserID = @User
+WHERE UserID = @UserID AND CardID = @CardID
 GO;
 
-CREATE PROCEDURE removeFromCart @User INT, @Card INT
+--Adds an item to a user's cart
+CREATE PROCEDURE addToCart @UserID int, @CardID int, @Quantity int
+AS
+INSERT Project.CartItems(UserID, CardID, Quantity)
+VALUES
+	(
+		@UserID,
+		@CardID,
+		@Quantity
+	)
+GO;
+
+--Updates the quantity of an existsing cart item
+CREATE PROCEDURE updateCartItem @UserID int, @CardID int, @Quantity int
+AS
+UPDATE Project.CartItems
+SET Quantity = @Quantity
+WHERE UserID = @UserID AND CardID = @CardID
+GO;
+
+--Removes all items from a cart
+CREATE PROCEDURE removeAllFromCart @UserID INT
 AS
 DELETE 
 FROM Project.CartItems
-WHERE UserID = @User AND CardID = @Card
+WHERE UserID = @UserID
 GO;
 
+--Creates a User in the DB
+CREATE PROCEDURE createUser @FN nvarchar(32), @LN nvarchar(32), @Email nvarchar(32), @Password nvarchar(32)
+AS
+INSERT Project.[User](FirstName, LastName, Email, Password)
+VALUES
+	(
+		@FN,
+		@LN,
+		@Email,
+		@Password
+	)
+GO;
+
+
+
+/* Orders */
+
+--Gets all past orders in DB
 CREATE PROCEDURE getOrders
 AS
 SELECT * 
