@@ -37,7 +37,6 @@ const formatOrder = order => ({
 const formatDIRTYOrders = dirtyOrders => {
   const consolidatedOrders = dirtyOrders.reduce((arr, order) => {
     const { OrderLineID, CardID, Title, ImageURL, Price, CostToProduce, Category, Quantity, ...rest } = order
-    // console.log(rest)
     rest.orderLines = [
       {
         OrderLineID,
@@ -51,8 +50,6 @@ const formatDIRTYOrders = dirtyOrders => {
       },
     ]
     const sameOrderIndex = arr.findIndex(o => o.OrderID === order.OrderID)
-    /* console.log(sameOrderIndex)
-    console.log(arr) */
     if (sameOrderIndex < 0) {
       arr.push(rest)
     } else {
@@ -60,19 +57,16 @@ const formatDIRTYOrders = dirtyOrders => {
     }
     return arr
   }, [])
-  // console.log(consolidatedOrders)
   return consolidatedOrders.map(formatOrder)
 }
 
 exports.getOrders = async (req, res) => {
   const dirtyOrders = await knex.exec(`getAllOrders`)
-  // console.log(dirtyOrders)
 
   const orders = formatDIRTYOrders(dirtyOrders)
 
   // const orders = await db.getOrders()
   if (orders) {
-    console.log(orders.length)
     return res.json(orders)
   }
   return res.status(404).send()
