@@ -138,7 +138,7 @@ WHERE CI.UserID = @UserID;
 
 EXEC removeAllFromCart @UserID;
 
-SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity, O.OrderDate
 FROM Project.[Order] O
 	INNER JOIN Project.[User] U ON U.UserID = O.UserID
 	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
@@ -159,10 +159,20 @@ GO
 
 
 
-
 ALTER PROCEDURE authenticateUser @email nvarchar(32), @password nvarchar(32)
 AS
 SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin
 FROM Project.[User] U
 WHERE U.Email = @email AND U.Password = @password
+GO
+
+ALTER PROCEDURE getAllOrders
+AS
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity, O.OrderDate
+FROM Project.[Order] O
+	INNER JOIN Project.[User] U ON U.UserID = O.UserID
+	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
+	INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	INNER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
+ORDER BY O.OrderID ASC
 GO
