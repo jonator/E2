@@ -67,7 +67,7 @@ content model =
 header : Model -> Html Msg
 header model =
     let
-        userBtns =
+        userControls =
             case model.user of
                 Just user ->
                     let
@@ -88,11 +88,13 @@ header model =
                             else
                                 []
                     in
-                        ([ div
+                        ([ div [ Attrs.class "user-email" ]
+                            [ text user.email ]
+                         , div
                             [ Attrs.class "cart button"
                             , onClick <| AuthenticatedMsgs <| ClickCart
                             ]
-                            [ text ("Cart (" ++ cartCount ++ ")") ]
+                            [ text ("Cart [" ++ cartCount ++ "]") ]
                          , div
                             [ Attrs.class "sign-out button"
                             , onClick <| AuthenticatedMsgs <| ClickSignOut
@@ -111,7 +113,7 @@ header model =
             ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
                 [ text "Cheeky Beak Card Company" ]
              ]
-                ++ userBtns
+                ++ userControls
             )
 
 
@@ -125,12 +127,14 @@ cardView : Card -> Html Msg
 cardView c =
     div [ Attrs.class "card-view" ]
         [ card c
-        , addToCartBtn <| AuthenticatedMsgs <| ClickAddToCart c
-        , div
-            [ Attrs.class "back-to-cards button"
-            , onClick ClickBackToCards
+        , div [ Attrs.class "actions" ]
+            [ div
+                [ Attrs.class "back-to-cards button"
+                , onClick ClickBackToCards
+                ]
+                [ text "<- Back to all cards" ]
+            , addToCartBtn <| AuthenticatedMsgs <| ClickAddToCart c
             ]
-            [ text "Back to all cards" ]
         ]
 
 
