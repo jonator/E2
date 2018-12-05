@@ -123,12 +123,6 @@ getCartItems userId hook =
         |> Http.send (processResult hook)
 
 
-deleteCartItems : Int -> (Result String String -> msg) -> Cmd msg
-deleteCartItems cartId hook =
-    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString cartId))
-        |> Http.send (processResult hook)
-
-
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItem cartId cardId hook =
     deleteRequest (fullPath ++ "users/cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
