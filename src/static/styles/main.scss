@@ -21,6 +21,10 @@ body {
   }
 }
 
+.delete-cart-item.button {
+  padding-top: 15px;
+}
+
 .header {
   background-color: lightblue;
   .title-text {
@@ -134,9 +138,13 @@ input {
     grid-template-rows: 20px;
 
     .order {
-      border-bottom: 5px solid lightblue;
+      border: 1px solid black;
+      margin-top: 20px;
+      margin-bottom: 20px;
       padding-top: 20px;
       padding-bottom: 20px;
+      padding-left: 20px;
+      cursor: pointer;
 
       .order-user {
         display: inline-flex;
@@ -150,6 +158,8 @@ input {
 
       .order-line {
         border-bottom: 1px dotted lightgrey;
+        margin: 5px;
+        padding: 5px;
       }
     }
   }

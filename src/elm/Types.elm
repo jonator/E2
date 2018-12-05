@@ -32,7 +32,7 @@ type Page
     | Homepage (List Card)
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List Order) TotalProfit
+    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit
     | DeleteCardView CardId
 
 
@@ -74,6 +74,12 @@ type alias LastName =
 
 type alias CardId =
     Int
+
+
+type alias Collapsible a =
+    { item : a
+    , collapsed : Bool
+    }
 
 
 type alias Order =
@@ -130,3 +136,4 @@ type AuthMsg
     | TypeEditCardImgUrl Card String
     | ClickUpdateCard Card
     | ClickDeleteCard Card
+    | ClickToggleOrderCollapsed Order

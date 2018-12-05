@@ -2,7 +2,7 @@ module Update exposing (update)
 
 import Dict
 import Requests exposing (..)
-import Types exposing (Card, CartItem, Model, Msg(..), Order, AuthMsg(..), Page(..), User)
+import Types exposing (Card, CartItem, Model, Msg(..), Collapsible, Order, AuthMsg(..), Page(..), User)
 import SignIn exposing (SignInMsg(..))
 
 
@@ -138,7 +138,7 @@ update msg model =
                             case res of
                                 Ok orderList ->
                                     -- call getorder total by this order id, calculate total profit
-                                    { model | page = AdminPage 0 (List.length orderList) orderList 0 } ! []
+                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 } ! []
 
                                 Err _ ->
                                     ignoreOtherCases model
@@ -248,6 +248,21 @@ update msg model =
                         ClickDeleteCard card ->
                             model ! [ deleteCard card.cardId <| AuthenticatedMsgs << HandleDeleteCard ]
 
+                        ClickToggleOrderCollapsed order ->
+                            case model.page of
+                                AdminPage a b collapsibleOList c ->
+                                    let
+                                        updateCollOrder o =
+                                            if o.item.orderId == order.orderId then
+                                                { o | collapsed = not o.collapsed }
+                                            else
+                                                o
+                                    in
+                                        { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
                 Nothing ->
                     { model | page = SignIn <| SignIn.init True True } ! []
 
@@ -255,3 +270,8 @@ update msg model =
 ignoreOtherCases : model -> ( model, Cmd msg )
 ignoreOtherCases m =
     m ! []
+
+
+toCollapsibleOrder : Bool -> Types.Order -> Collapsible Types.Order
+toCollapsibleOrder isOpen o =
+    Collapsible o isOpen

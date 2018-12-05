@@ -261,7 +261,7 @@ cartItemQuantity cardId quantity =
         ]
 
 
-adminPage : TotalSales -> OrderCount -> List Types.Order -> TotalProfit -> Html Msg
+adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalProfit -> Html Msg
 adminPage totalSales orderCount orderList totalProfit =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
@@ -276,14 +276,21 @@ adminPage totalSales orderCount orderList totalProfit =
         ]
 
 
-order : Types.Order -> Html Msg
-order o =
-    div [ Attrs.class "order" ]
-        ([ text <| (++) "Order ID: " <| toString o.orderId
-         , orderUser o.user
-         ]
-            ++ List.map orderLine o.orderLines
-        )
+order : Collapsible Types.Order -> Html Msg
+order cOrder =
+    let
+        c =
+            if cOrder.collapsed then
+                []
+            else
+                List.map orderLine cOrder.item.orderLines
+    in
+        div [ Attrs.class "order", onClick <| AuthenticatedMsgs <| ClickToggleOrderCollapsed cOrder.item ]
+            ([ text <| (++) "Order ID: " <| toString cOrder.item.orderId
+             , orderUser cOrder.item.user
+             ]
+                ++ c
+            )
 
 
 orderUser : User -> Html msg

@@ -107,7 +107,7 @@ decodeCardsSoldByCategory =
 
 processApiUserToElmUser : ApiUser -> User
 processApiUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email apiUser.isAdmin Dict.empty
+    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email True Dict.empty
 
 
 encodeUser : String -> String -> String -> String -> Value
