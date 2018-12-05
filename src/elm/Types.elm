@@ -123,6 +123,7 @@ type AuthMsg
     | CartCardQuantityChange CardId String
     | ClickMyStore
     | ClickCreateCard
+    | ClickDeleteCartItem (CartItem Card)
     | TypeEditCardTitle Card String
     | TypeEditCardPrice Card String
     | TypeEditCardCategory Card String

@@ -29,6 +29,13 @@ type alias ApiCartItem a =
     }
 
 
+type alias ApiCartUpdate =
+    { userId : Int
+    , cardId : Int
+    , quantity : Int
+    }
+
+
 decodeCard : Decoder Card
 decodeCard =
     JD.map6 Card
@@ -49,6 +56,14 @@ decodeCartItem : Decoder (ApiCartItem Card)
 decodeCartItem =
     JD.map2 ApiCartItem
         (field "card" decodeCard)
+        (field "quantity" JD.int)
+
+
+decodeCartItemUpdate : Decoder ApiCartUpdate
+decodeCartItemUpdate =
+    JD.map3 ApiCartUpdate
+        (field "userId" JD.int)
+        (field "cardId" JD.int)
         (field "quantity" JD.int)
 
 

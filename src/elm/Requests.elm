@@ -134,21 +134,31 @@ processCartItemResult message res =
 
 
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
-deleteCartItem cartId cardId hook =
-    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString cartId) ++ "/" ++ (toString cardId))
+deleteCartItem userId cardId hook =
+    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString userId) ++ "/" ++ (toString cardId))
         |> Http.send (processResult hook)
 
 
 createCartItem : Int -> Int -> Int -> (Result String String -> msg) -> Cmd msg
 createCartItem userId cardId quantity hook =
-    Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) JD.string
-        |> Http.send (processResult hook)
+    Http.post (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) decodeCartItemUpdate
+        |> Http.send (processUpdateCartItem hook)
 
 
 updateCartItem : Int -> Int -> Int -> (Result String String -> msg) -> Cmd msg
 updateCartItem userId cardId quantity hook =
-    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) JD.string
-        |> Http.send (processResult hook)
+    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) decodeCartItemUpdate
+        |> Http.send (processUpdateCartItem hook)
+
+
+processUpdateCartItem : (Result String String -> msg) -> Result Http.Error ApiCartUpdate -> msg
+processUpdateCartItem message res =
+    case res of
+        Ok cartUpdate ->
+            message <| Ok "ok"
+
+        Err httpError ->
+            message <| Err <| httpErrToString httpError
 
 
 createUser : String -> String -> String -> String -> (Result String String -> msg) -> Cmd msg

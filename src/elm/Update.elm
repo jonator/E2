@@ -122,6 +122,9 @@ update msg model =
                         HandleDeleteCard res ->
                             model ! [ getCards HandleCards ]
 
+                        ClickDeleteCartItem cartItem ->
+                            model ! [ deleteCartItem user.userId cartItem.item.cardId <| AuthenticatedMsgs << HandleDeleteCartItem ]
+
                         HandleDeleteCartItem res ->
                             model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
@@ -129,7 +132,7 @@ update msg model =
                             model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleUpdateCartItem res ->
-                            ignoreOtherCases model
+                            model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleGetAllOrders res ->
                             case res of
@@ -154,31 +157,11 @@ update msg model =
 
                         CartCardQuantityChange cardId stringValue ->
                             case String.toInt stringValue of
-                                Ok val ->
-                                    let
-                                        newUser =
-                                            { user
-                                                | cart =
-                                                    Dict.update
-                                                        cardId
-                                                        (\y ->
-                                                            case y of
-                                                                Just item ->
-                                                                    if val > 0 then
-                                                                        Just { item | quantity = val }
-                                                                    else
-                                                                        Nothing
-
-                                                                Nothing ->
-                                                                    Nothing
-                                                        )
-                                                        user.cart
-                                            }
-                                    in
-                                        if val > 0 then
-                                            { model | user = Just newUser } ! []
-                                        else
-                                            ignoreOtherCases model
+                                Ok quant ->
+                                    if quant > 0 then
+                                        model ! [ updateCartItem user.userId cardId quant <| AuthenticatedMsgs << HandleUpdateCartItem ]
+                                    else
+                                        model ! [ deleteCartItem user.userId cardId <| AuthenticatedMsgs << HandleDeleteCartItem ]
 
                                 --api to update cart item to val
                                 Err _ ->

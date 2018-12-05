@@ -236,6 +236,11 @@ cartItem cartCard =
             , div [ Attrs.class "category" ]
                 [ text cartCard.item.category ]
             , cartItemQuantity cartCard.item.cardId cartCard.quantity
+            , div
+                [ Attrs.class "delete-cart-item button"
+                , onClick <| AuthenticatedMsgs <| ClickDeleteCartItem cartCard
+                ]
+                [ text "Delete from cart" ]
             ]
         , div [ Attrs.class "image" ]
             [ img [ Attrs.src cartCard.item.imageUrl ]
