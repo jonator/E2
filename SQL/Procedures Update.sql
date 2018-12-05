@@ -51,12 +51,24 @@ FROM Project.Card C
 WHERE C.CardID = @CardID
 GO
 
+--Returns null if card is still in DB after deletion
+--Returns CardID of deleted card if card is not found in DB after deletion
 ALTER PROCEDURE deleteCard @CardID INT
 AS
 DELETE Project.Card
 WHERE CardID = @CardID;
 
-SELECT @CardID AS CardID
+DECLARE @test INT = 
+	(
+		SELECT C.CardID
+		FROM Project.Card C
+		WHERE C.CardID = @CardID
+	)
+
+SET @test = CASE WHEN @test > 0 THEN NULL
+				ELSE @CardID END
+
+SELECT @test AS CardID
 GO
 
 
