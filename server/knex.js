@@ -9,6 +9,13 @@ const knex = require('knex')({
       encrypt: true,
     },
   },
+  /* pool: {
+    afterCreate: function(connection, callback) {
+      connection.query('SET time_zone = -06:00;', function(err) {
+        callback(err, connection)
+      })
+    },
+  }, */
 })
 
 knex.table = table => knex.withSchema('Project').table(table)

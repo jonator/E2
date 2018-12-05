@@ -1,18 +1,19 @@
 const usersController = require('../controllers/users')
+const { catchErrors } = require('../handlers/errorHandlers')
 
 function setupUserRoutes(router) {
-  router.get('/authenticate/:email/:password', usersController.authenticateUser)
+  router.get('/authenticate/:email/:password', catchErrors(usersController.authenticateUser))
 
-  router.get('/cartItems/', usersController.getCartItems)
-  router.get('/cartItems/:userId', usersController.getCartItems)
-  router.delete('/cartItems/:userId', usersController.deleteCartItems)
-  router.delete('/cartItems/:userId/:cardId', usersController.deleteCartItem)
-  router.post('/cartItems', usersController.createCartItem)
-  router.put('/cartItems', usersController.updateCartItem)
+  router.get('/cartItems/', catchErrors(usersController.getCartItems))
+  router.get('/cartItems/:userId', catchErrors(usersController.getCartItems))
+  router.delete('/cartItems/:userId', catchErrors(usersController.deleteCartItems))
+  router.delete('/cartItems/:userId/:cardId', catchErrors(usersController.deleteCartItem))
+  router.post('/cartItems', catchErrors(usersController.createCartItem))
+  router.put('/cartItems', catchErrors(usersController.updateCartItem))
 
-  router.get('/:userId', usersController.getUser)
-  router.get('/', usersController.getUsers)
-  router.post('/', usersController.createUser)
+  router.get('/:userId', catchErrors(usersController.getUser))
+  router.get('/', catchErrors(usersController.getUsers))
+  router.post('/', catchErrors(usersController.createUser))
 }
 
 module.exports = setupUserRoutes

@@ -1,12 +1,14 @@
 const ordersController = require('../controllers/orders')
+const { catchErrors } = require('../handlers/errorHandlers')
 
 function setupOrderRoutes(router) {
-  router.get('/', ordersController.getOrders)
-  router.get('/totalSales', ordersController.getTotalSales)
-  router.get('/totalProfit', ordersController.getTotalProfit)
-  router.get('/cardsSoldByCategory', ordersController.getCardsSoldByCategory)
-  router.get('/:orderId', ordersController.getOrder)
-  router.post('/:userId', ordersController.createOrder)
+  // router.get('/', catchErrors(ordersController.getOrders))
+  router.get('/', catchErrors(ordersController.getOrders))
+  router.get('/totalSales', catchErrors(ordersController.getTotalSales))
+  router.get('/totalProfit', catchErrors(ordersController.getTotalProfit))
+  router.get('/cardsSoldByCategory', catchErrors(ordersController.getCardsSoldByCategory))
+  router.get('/:orderId', catchErrors(ordersController.getOrder))
+  router.post('/:userId', catchErrors(ordersController.createOrder))
 }
 
 module.exports = setupOrderRoutes
