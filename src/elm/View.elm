@@ -87,14 +87,20 @@ header model =
                                 ]
                             else
                                 []
+
+                        cartButton =
+                            if user.isAdmin then
+                                div [] []
+                            else
+                                div
+                                    [ Attrs.class "cart button"
+                                    , onClick <| AuthenticatedMsgs <| ClickCart
+                                    ]
+                                    [ text ("Cart [" ++ cartCount ++ "]") ]
                     in
                         ([ div [ Attrs.class "user-email" ]
                             [ text user.email ]
-                         , div
-                            [ Attrs.class "cart button"
-                            , onClick <| AuthenticatedMsgs <| ClickCart
-                            ]
-                            [ text ("Cart [" ++ cartCount ++ "]") ]
+                         , cartButton
                          , div
                             [ Attrs.class "sign-out button"
                             , onClick <| AuthenticatedMsgs <| ClickSignOut
@@ -159,7 +165,7 @@ card isAdmin c =
                     []
                 , input
                     [ Attrs.class "price input"
-                    , Attrs.placeholder <| toString c.price
+                    , Attrs.placeholder <| String.append "$" <| toString c.price
                     , onInput <| AuthenticatedMsgs << TypeEditCardPrice c
                     ]
                     []
@@ -169,13 +175,15 @@ card isAdmin c =
                     , onInput <| AuthenticatedMsgs << TypeEditCardCategory c
                     ]
                     []
+                , input
+                    [ Attrs.class "image-input"
+                    , Attrs.placeholder c.imageUrl
+                    , onInput <| AuthenticatedMsgs << TypeEditCardImgUrl c
+                    ]
+                    []
                 ]
-            , input
-                [ Attrs.class "image-input"
-                , Attrs.placeholder c.imageUrl
-                , onInput <| AuthenticatedMsgs << TypeEditCardImgUrl c
-                ]
-                []
+            , div [ Attrs.class "image" ]
+                [ img [ Attrs.src c.imageUrl ] [] ]
             , div [ Attrs.class "update-card button", onClick <| AuthenticatedMsgs <| ClickUpdateCard c ]
                 [ text "Update" ]
             , div [ Attrs.class "delete-card button", onClick <| AuthenticatedMsgs <| ClickDeleteCard c ]

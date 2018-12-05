@@ -40,7 +40,7 @@ httpErrToString err =
             "Bad status"
 
         BadPayload str resStr ->
-            "Bad payload"
+            "Bad payload" ++ str ++ resStr.body
 
 
 processResult : (Result String a -> msg) -> Result Http.Error a -> msg
@@ -75,9 +75,9 @@ createCard title imageUrl cost costToProduce category hook =
         |> Http.send (processResult hook)
 
 
-updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
-updateCard cardId title imageUrl cost costToProduce category hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category) JD.string
+updateCard : Card -> (Result String String -> msg) -> Cmd msg
+updateCard c hook =
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard c.cardId c.title c.imageUrl c.price c.costToProduce c.category) JD.string
         |> Http.send (processResult hook)
 
 
@@ -120,7 +120,17 @@ processUserResult message res =
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
     Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
-        |> Http.send (processResult hook)
+        |> Http.send (processCartItemResult hook)
+
+
+processCartItemResult : (Result String (List (CartItem Card)) -> msg) -> Result Http.Error (List (ApiCartItem Card)) -> msg
+processCartItemResult message res =
+    case res of
+        Ok cartItems ->
+            message <| Ok (List.map apiCartItemToElmCartItem cartItems)
+
+        Err httpErr ->
+            message <| Err <| httpErrToString httpErr
 
 
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
@@ -135,9 +145,9 @@ createCartItem userId cardId quantity hook =
         |> Http.send (processResult hook)
 
 
-updateCartItem : Int -> Int -> Int -> (Result String (CartItem Card) -> msg) -> Cmd msg
+updateCartItem : Int -> Int -> Int -> (Result String String -> msg) -> Cmd msg
 updateCartItem userId cardId quantity hook =
-    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) decodeCartItem
+    putRequest (fullPath ++ "users/cartItems") (jsonBody <| encodeCartItem userId cardId quantity) JD.string
         |> Http.send (processResult hook)
 
 
@@ -160,18 +170,8 @@ getAllOrders hook =
 processOrderListResult : (Result String (List Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
 processOrderListResult message res =
     case res of
-        Ok order ->
-            message <| Ok (List.map apiOrderToElmOrder order)
-
-        Err httpErr ->
-            message <| Err <| httpErrToString httpErr
-
-
-processOrderResult : (Result String (List Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
-processOrderResult message res =
-    case res of
-        Ok order ->
-            message <| Ok (List.map apiOrderToElmOrder order)
+        Ok orders ->
+            message <| Ok (List.map apiOrderToElmOrder orders)
 
         Err httpErr ->
             message <| Err <| httpErrToString httpErr

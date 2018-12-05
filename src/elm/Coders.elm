@@ -23,6 +23,12 @@ type alias ApiUser =
     }
 
 
+type alias ApiCartItem a =
+    { card : a
+    , quantity : Int
+    }
+
+
 decodeCard : Decoder Card
 decodeCard =
     JD.map6 Card
@@ -39,16 +45,21 @@ decodeCardList =
     JD.list decodeCard
 
 
-decodeCartItem : Decoder (CartItem Card)
+decodeCartItem : Decoder (ApiCartItem Card)
 decodeCartItem =
-    JD.map2 CartItem
+    JD.map2 ApiCartItem
+        (field "card" decodeCard)
         (field "quantity" JD.int)
-        (field "category" decodeCard)
 
 
-decodeCartItemList : Decoder (List (CartItem Card))
+decodeCartItemList : Decoder (List (ApiCartItem Card))
 decodeCartItemList =
     JD.list decodeCartItem
+
+
+apiCartItemToElmCartItem : ApiCartItem a -> CartItem a
+apiCartItemToElmCartItem apiItem =
+    CartItem apiItem.card apiItem.quantity
 
 
 encodeCartItem : Int -> Int -> Int -> Value
@@ -81,7 +92,7 @@ decodeCardsSoldByCategory =
 
 processApiUserToElmUser : ApiUser -> User
 processApiUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email True Dict.empty
+    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email apiUser.isAdmin Dict.empty
 
 
 encodeUser : String -> String -> String -> String -> Value

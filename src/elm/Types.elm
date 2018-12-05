@@ -1,6 +1,5 @@
 module Types exposing (..)
 
-import CardEditor
 import Dict exposing (Dict)
 import SignIn
 
@@ -34,8 +33,6 @@ type Page
     | CardView Card
     | CartView
     | AdminPage TotalSales OrderCount (List Order) TotalProfit
-    | CreateCardView CardEditor.Model
-    | EditCardView CardId CardEditor.Model
     | DeleteCardView CardId
 
 
@@ -50,8 +47,8 @@ type alias Card =
 
 
 type alias CartItem a =
-    { quantity : Int
-    , item : a
+    { item : a
+    , quantity : Int
     }
 
 
@@ -120,7 +117,6 @@ type AuthMsg
     | HandleCreateCartItem (Result String String)
     | HandleGetAllOrders (Result String (List Order))
     | HandleGetOrderTotal (Result String Int)
-    | CardEditorMsgs CardEditor.CardEditorMsg
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut

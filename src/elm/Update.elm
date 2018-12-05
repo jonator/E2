@@ -1,6 +1,5 @@
 module Update exposing (update)
 
-import CardEditor exposing (CardEditorMsg(..))
 import Dict
 import Requests exposing (..)
 import Types exposing (Card, CartItem, Model, Msg(..), Order, AuthMsg(..), Page(..), User)
@@ -98,10 +97,10 @@ update msg model =
                     case authMsg of
                         HandleGetUserCart res ->
                             case res of
-                                Ok cart ->
+                                Ok cartItems ->
                                     let
                                         newCart =
-                                            List.map (\x -> ( x.item.cardId, x )) cart
+                                            List.map (\x -> ( x.item.cardId, x )) cartItems
 
                                         newUser =
                                             { user | cart = Dict.fromList newCart }
@@ -112,16 +111,19 @@ update msg model =
                                     ignoreOtherCases model
 
                         HandleCreateCard res ->
-                            ignoreOtherCases model
+                            -- for simplicity, on the following we ignore whether it
+                            -- succeeds or fails and will just get whats
+                            -- on the server
+                            model ! [ getCards HandleCards ]
 
                         HandleUpdateCard res ->
-                            ignoreOtherCases model
+                            model ! [ getCards HandleCards ]
 
                         HandleDeleteCard res ->
-                            ignoreOtherCases model
+                            model ! [ getCards HandleCards ]
 
                         HandleDeleteCartItem res ->
-                            ignoreOtherCases model
+                            model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleCreateCartItem res ->
                             model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
@@ -142,12 +144,7 @@ update msg model =
                             ignoreOtherCases model
 
                         ClickAddToCart card ->
-                            { model
-                                | user =
-                                    Just <|
-                                        addCardToUsersCart user card
-                            }
-                                ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
+                            model ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
 
                         ClickCart ->
                             { model | page = CartView } ! []
@@ -195,25 +192,7 @@ update msg model =
                                 ignoreOtherCases model
 
                         ClickCreateCard ->
-                            { model | page = CreateCardView CardEditor.init } ! []
-
-                        CardEditorMsgs ceMsg ->
-                            case model.page of
-                                CreateCardView ceModel ->
-                                    case ceMsg of
-                                        SubmitCard title img cost category ->
-                                            -- api call to create card
-                                            { model | page = Loading } ! []
-
-                                        _ ->
-                                            let
-                                                newCEModel =
-                                                    CardEditor.update ceMsg ceModel
-                                            in
-                                                { model | page = CreateCardView newCEModel } ! []
-
-                                _ ->
-                                    ignoreOtherCases model
+                            ignoreOtherCases model
 
                         TypeEditCardTitle card str ->
                             case model.page of
@@ -281,10 +260,10 @@ update msg model =
                                     ignoreOtherCases model
 
                         ClickUpdateCard card ->
-                            ignoreOtherCases model
+                            model ! [ updateCard card <| AuthenticatedMsgs << HandleUpdateCard ]
 
                         ClickDeleteCard card ->
-                            ignoreOtherCases model
+                            model ! [ deleteCard card.cardId <| AuthenticatedMsgs << HandleDeleteCard ]
 
                 Nothing ->
                     { model | page = SignIn <| SignIn.init True True } ! []
@@ -293,17 +272,3 @@ update msg model =
 ignoreOtherCases : model -> ( model, Cmd msg )
 ignoreOtherCases m =
     m ! []
-
-
-addCardToUsersCart : User -> Card -> User
-addCardToUsersCart user card =
-    let
-        itemAdd mI =
-            case mI of
-                Just i ->
-                    Just { i | quantity = i.quantity + 1 }
-
-                Nothing ->
-                    Just <| CartItem 1 card
-    in
-        { user | cart = Dict.update card.cardId itemAdd user.cart }
