@@ -1,10 +1,26 @@
 const db = require('../utils/db')
+const knex = require('../knex')
 
 // get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
 
+const formatCard = card => ({
+  cardId: card.CardID,
+  title: card.Title,
+  imageUrl: card.ImageURL,
+  price: card.Price,
+  costToProduce: card.CostToProduce,
+  category: card.Category,
+})
+
 exports.createCard = async (req, res) => {
-  const newCard = await db.insertCard(req.body)
+  // const newCard = await db.insertCard(req.body)
+  const { title, imageUrl, price, costToProduce, category } = req.body
+  const dirtyCard = await knex.exec(
+    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = '${price}' , @cost = '${costToProduce}' , @category = '${category}'`
+  )
+  console.log({ dirtyCard })
+  const newCard = formatCard(dirtyCard)
   if (newCard) {
     return res.json(newCard)
   }
@@ -12,7 +28,9 @@ exports.createCard = async (req, res) => {
 }
 
 exports.getCards = async (req, res) => {
-  const cards = await db.getCards()
+  const dirtyCards = await knex.exec('getAllCards')
+  const cards = dirtyCards.map(formatCard)
+  // const cards = await db.getCards()
   if (cards) {
     return res.json(cards)
   }
