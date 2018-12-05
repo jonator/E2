@@ -144,3 +144,13 @@ AS
 	FROM Project.CardCategory CC
 	Order BY CC.CategoryID ASC
 GO
+
+
+
+
+ALTER PROCEDURE authenticateUser @email nvarchar(32), @password nvarchar(32)
+AS
+SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin
+FROM Project.[User] U
+WHERE U.Email = @email AND U.Password = @password
+GO
