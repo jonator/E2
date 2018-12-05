@@ -11,7 +11,7 @@ SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
 	) AS Category
 FROM Project.Card C
 ORDER BY C.CardID ASC
-GO;
+GO
 
 --Adds a new card to the DB
 CREATE PROCEDURE createCard @title nvarchar(64), @url nvarchar(64), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
@@ -29,7 +29,7 @@ VALUES
 			WHERE CC.Category = @category
 		)
 	)
-GO;
+GO
 
 --Updates a card from a specific cardID
 CREATE PROCEDURE updateCard @CardID int, @title nvarchar(64), @url nvarchar(64), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
@@ -46,8 +46,7 @@ SET Title = @title,
 			WHERE CC.Category = @category AND CC.CategoryID = CategoryID
 		)
 WHERE CardID = @CardID
-
-Go;
+Go
 
 --Returns a card from a specific ID
 CREATE PROCEDURE getSingleCard @CardID INT
@@ -60,14 +59,14 @@ SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
 	) AS Category
 FROM Project.Card C
 WHERE C.CardID = @CardID
-GO;
+GO
 
 --Deletes a card from the DB with a specific CardID
 CREATE PROCEDURE deleteCard @CardID INT
 AS
 DELETE Project.Card
 WHERE CardID = @CardID
-GO;
+GO
 
 
 
@@ -79,7 +78,7 @@ AS
 SELECT U.UserID
 FROM Project.[User] U
 WHERE U.Email = @email AND U.Password = @password
-GO;
+GO
 
 --Returns all cart lines associated with specific userID
 CREATE PROCEDURE getCart @UserID nvarchar(30)
@@ -97,7 +96,7 @@ FROM Project.CartItems CI
 		FROM Project.Card C
 	) A ON A.CardID = CI.CardID
 WHERE UserID = @UserID
-GO;
+GO
 
 --Removes a specific item from a specific user's cart
 CREATE PROCEDURE removeFromCart @UserID INT, @CardID INT
@@ -105,7 +104,7 @@ AS
 DELETE 
 FROM Project.CartItems
 WHERE UserID = @UserID AND CardID = @CardID
-GO;
+GO
 
 --Adds an item to a user's cart
 CREATE PROCEDURE addToCart @UserID int, @CardID int, @Quantity int
@@ -117,7 +116,7 @@ VALUES
 		@CardID,
 		@Quantity
 	)
-GO;
+GO
 
 --Updates the quantity of an existsing cart item
 CREATE PROCEDURE updateCartItem @UserID int, @CardID int, @Quantity int
@@ -125,7 +124,7 @@ AS
 UPDATE Project.CartItems
 SET Quantity = @Quantity
 WHERE UserID = @UserID AND CardID = @CardID
-GO;
+GO
 
 --Removes all items from a cart
 CREATE PROCEDURE removeAllFromCart @UserID INT
@@ -133,7 +132,7 @@ AS
 DELETE 
 FROM Project.CartItems
 WHERE UserID = @UserID
-GO;
+GO
 
 --Creates a User in the DB
 CREATE PROCEDURE createUser @FN nvarchar(32), @LN nvarchar(32), @Email nvarchar(32), @Password nvarchar(32)
@@ -146,7 +145,7 @@ VALUES
 		@Email,
 		@Password
 	)
-GO;
+GO
 
 
 
@@ -162,7 +161,7 @@ FROM Project.[Order] O
 	INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	INNER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
 ORDER BY O.OrderID ASC
-GO;
+GO
 
 --Creates a new order from all items in cart items that are associated with specific userID, then removes items from cart
 CREATE PROCEDURE createOrder @UserID INT
@@ -178,7 +177,7 @@ FROM Project.CartItems CI
 WHERE CI.UserID = @UserID
 
 EXEC removeAllFromCart @UserID
-GO;
+GO
 
 --Returns the total sales in $, does not account for cost to produce
 CREATE PROCEDURE totalSales
@@ -190,7 +189,7 @@ DECLARE @Sales DECIMAL(10,2) =
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
 SELECT @Sales AS total
-GO;
+GO
 
 --Returns the total profits after the cost to produce each card
 CREATE PROCEDURE totalProfit
@@ -209,7 +208,7 @@ DECLARE @Cost DECIMAL(10,2) =
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
 SELECT (@Sales - @Cost) AS total
-GO;
+GO
 
 --Returns the number of cards sold in each category
 CREATE PROCEDURE cardsSoldByCategory
@@ -220,4 +219,4 @@ AS
 		RIGHT OUTER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
 	GROUP BY CC.CategoryID, CC.Category
 	Order BY CC.CategoryID ASC
-GO;
+GO
