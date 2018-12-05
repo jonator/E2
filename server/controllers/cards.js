@@ -1,4 +1,4 @@
-const db = require('../utils/db')
+// const db = require('../utils/db')
 const knex = require('../knex')
 
 // get the specified id from the req.params
@@ -20,7 +20,7 @@ exports.createCard = async (req, res) => {
     `createCard @title = '${title}' , @url = '${imageUrl}' , @price = '${price}' , @cost = '${costToProduce}' , @category = '${category}'`
   )
   console.log({ dirtyCard })
-  const newCard = formatCard(dirtyCard)
+  const newCard = formatCard(dirtyCard[0])
   if (newCard) {
     return res.json(newCard)
   }
@@ -38,22 +38,34 @@ exports.getCards = async (req, res) => {
 }
 
 exports.updateCard = async (req, res) => {
-  const newCard = await db.updateCard(req.body)
+  const { cardId, title, imageUrl, price, costToProduce, category } = req.body
+  const dirtyCard = await knex.exec(
+    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = '${imageUrl}' , @price = '${price}' , @cost = '${costToProduce}' , @category = '${category}'`
+  )
+
+  console.log({ dirtyCard })
+  const newCard = formatCard(dirtyCard[0])
+  // const newCard = await db.updateCard(req.body)
   if (newCard) {
     return res.json(newCard)
   }
   return res.status(404).send()
 }
+
 exports.deleteCard = async (req, res) => {
-  const deletedCard = await db.deleteCard(intId(req, 'cardId'))
-  if (deletedCard) {
+  const deletedCardId = await knex.exec(`deleteCard @CardID = '${intId(req, 'cardId')}'`)
+  console.log({ deletedCardId })
+  // const deletedCard = await db.deleteCard(intId(req, 'cardId'))
+  if (deletedCardId) {
     return res.send()
   }
   return res.status(404).send()
 }
 
 exports.getCard = async (req, res) => {
-  const card = await db.getCard(intId(req, 'cardId'))
+  const dirtyCard = await knex.exec(`getSingleCard @CardID = '${intId(req, 'cardId')}'`)
+  const card = formatCard(dirtyCard[0])
+  // const card = await db.getCard(intId(req, 'cardId'))
   if (card) {
     return res.json(card)
   }

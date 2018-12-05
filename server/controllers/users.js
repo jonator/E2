@@ -1,5 +1,5 @@
 const db = require('../utils/db')
-
+const knex = require('../knex')
 // get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
 
@@ -17,9 +17,13 @@ exports.getUsers = async (req, res) => {
   return res.json(users)
 }
 
+const formatUser = user => console.log(user) && user
+
 exports.authenticateUser = async (req, res) => {
   const { email, password } = req.params
-  const user = await db.authenticateUser({ email, password })
+  const dirtyUser = await knex.exec(`authenticateUser @email = '${email}', @password = '${password}'`)
+  const user = formatUser(dirtyUser[0])
+  // const user = await db.authenticateUser({ email, password })
   if (user) {
     return res.json(user)
   }
