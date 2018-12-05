@@ -2,7 +2,6 @@ module Requests exposing (..)
 
 import Coders exposing (..)
 import Json.Decode as JD exposing (Decoder, field)
-import Json.Encode as JE
 import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString, expectJson)
 import Types exposing (..)
 
@@ -76,9 +75,9 @@ createCard title imageUrl cost costToProduce category hook =
         |> Http.send (processResult hook)
 
 
-updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String Card -> msg) -> Cmd msg
+updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
 updateCard cardId title imageUrl cost costToProduce category hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category) decodeCard
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category) JD.string
         |> Http.send (processResult hook)
 
 

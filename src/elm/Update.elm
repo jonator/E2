@@ -133,7 +133,7 @@ update msg model =
                             case res of
                                 Ok orderList ->
                                     -- call getorder total by this order id, calculate total profit
-                                    { model | page = AdminPage 0 (List.length orderList) orderList 0 0 0 } ! []
+                                    { model | page = AdminPage 0 (List.length orderList) orderList 0 } ! []
 
                                 Err _ ->
                                     ignoreOtherCases model
@@ -215,49 +215,76 @@ update msg model =
                                 _ ->
                                     ignoreOtherCases model
 
-                        ClickEditCard ->
+                        TypeEditCardTitle card str ->
                             case model.page of
-                                AdminPage a b c d editId e ->
-                                    -- call get card by id, call orders apis
-                                    { model | page = AdminPage a b c d 0 e } ! []
+                                Homepage cardList ->
+                                    let
+                                        updateTitle c =
+                                            if c.cardId == card.cardId then
+                                                { c | title = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateTitle cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        TypeEditCardId val ->
+                        TypeEditCardPrice card str ->
                             case model.page of
-                                AdminPage a b c d _ e ->
-                                    case String.toInt val of
-                                        Ok v ->
-                                            { model | page = AdminPage a b c d v e } ! []
+                                Homepage cardList ->
+                                    let
+                                        updatePrice c =
+                                            if c.cardId == card.cardId then
+                                                case String.toInt str of
+                                                    Ok v ->
+                                                        { c | price = v }
 
-                                        Err _ ->
-                                            ignoreOtherCases model
+                                                    Err _ ->
+                                                        c
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updatePrice cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        ClickDeleteCard ->
+                        TypeEditCardCategory card str ->
                             case model.page of
-                                AdminPage a b c d e delId ->
-                                    --call delete card by id, call orders apis
-                                    { model | page = AdminPage a b c d e 0 } ! []
+                                Homepage cardList ->
+                                    let
+                                        updateCat c =
+                                            if c.cardId == card.cardId then
+                                                { c | category = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateCat cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        TypeDeleteCardId val ->
+                        TypeEditCardImgUrl card str ->
                             case model.page of
-                                AdminPage a b c d e _ ->
-                                    case String.toInt val of
-                                        Ok v ->
-                                            { model | page = AdminPage a b c d e v } ! []
-
-                                        Err _ ->
-                                            ignoreOtherCases model
+                                Homepage cardList ->
+                                    let
+                                        updateImgUrl c =
+                                            if c.cardId == card.cardId then
+                                                { c | imageUrl = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateImgUrl cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
+
+                        ClickUpdateCard card ->
+                            ignoreOtherCases model
+
+                        ClickDeleteCard card ->
+                            ignoreOtherCases model
 
                 Nothing ->
                     { model | page = SignIn <| SignIn.init True True } ! []

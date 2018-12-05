@@ -5,6 +5,7 @@ import Json.Decode as JD exposing (Decoder, field, int, string)
 import Json.Encode as JE exposing (object, int, string, Value)
 import Types exposing (..)
 
+
 type alias ApiOrder =
     { orderId : Int
     , user : ApiUser
@@ -43,13 +44,12 @@ decodeCartItem =
     JD.map2 CartItem
         (field "quantity" JD.int)
         (field "category" decodeCard)
-        
-        
 
 
 decodeCartItemList : Decoder (List (CartItem Card))
 decodeCartItemList =
     JD.list decodeCartItem
+
 
 encodeCartItem : Int -> Int -> Int -> Value
 encodeCartItem userId cardId quantity =
@@ -69,10 +69,11 @@ decodeApiUser =
         (field "email" JD.string)
         (field "isAdmin" JD.bool)
 
+
 decodeCardsSoldByCategory : Decoder (List CardsSoldByCategory)
 decodeCardsSoldByCategory =
-    JD.list 
-        (JD.map2 CardsSoldByCategory 
+    JD.list
+        (JD.map2 CardsSoldByCategory
             (field "category" JD.string)
             (field "quantity" JD.int)
         )
@@ -80,7 +81,7 @@ decodeCardsSoldByCategory =
 
 processApiUserToElmUser : ApiUser -> User
 processApiUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email apiUser.isAdmin Dict.empty
+    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email True Dict.empty
 
 
 encodeUser : String -> String -> String -> String -> Value
@@ -94,7 +95,7 @@ encodeUser firstName lastName email password =
 
 
 encodeNewCard : String -> String -> Int -> Int -> String -> Value
-encodeNewCard title imageUrl cost costToProduce category  =
+encodeNewCard title imageUrl cost costToProduce category =
     object
         [ ( "title", JE.string title )
         , ( "imageUrl", JE.string imageUrl )
@@ -104,7 +105,7 @@ encodeNewCard title imageUrl cost costToProduce category  =
         ]
 
 
-encodeUpdatedCard : Int -> String -> String -> Int  -> Int -> String -> Value
+encodeUpdatedCard : Int -> String -> String -> Int -> Int -> String -> Value
 encodeUpdatedCard cardId title imageUrl cost costToProduce category =
     object
         [ ( "cardId", JE.int cardId )

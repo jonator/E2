@@ -28,13 +28,13 @@ content model =
                             cart <| List.map Tuple.second <| Dict.toList user.cart
 
                         Homepage cardList ->
-                            homepage cardList
+                            homepage user.isAdmin cardList
 
                         CardView c ->
                             cardView c
 
-                        AdminPage totalSales orderCount orderList totalProfit editId delId ->
-                            adminPage totalSales orderCount orderList totalProfit editId delId
+                        AdminPage totalSales orderCount orderList totalProfit ->
+                            adminPage totalSales orderCount orderList totalProfit
 
                         Loading ->
                             loading
@@ -45,7 +45,7 @@ content model =
                 Nothing ->
                     case model.page of
                         Homepage cardList ->
-                            homepage cardList
+                            homepage False cardList
 
                         CardView c ->
                             cardView c
@@ -117,16 +117,16 @@ header model =
             )
 
 
-homepage : List Card -> Html Msg
-homepage cardList =
+homepage : Bool -> List Card -> Html Msg
+homepage isAdmin cardList =
     div [ Attrs.class "cards" ] <|
-        List.map card cardList
+        List.map (card isAdmin) cardList
 
 
 cardView : Card -> Html Msg
 cardView c =
     div [ Attrs.class "card-view" ]
-        [ card c
+        [ card False c
         , div [ Attrs.class "actions" ]
             [ div
                 [ Attrs.class "back-to-cards button"
@@ -144,22 +144,58 @@ loading =
         [ text "Loading!" ]
 
 
-card : Card -> Html Msg
-card c =
-    div [ Attrs.class "card", onClick <| ClickCard c ]
-        [ div [ Attrs.class "info" ]
-            [ div [ Attrs.class "id" ]
-                [ text <| toString c.cardId ]
-            , div [ Attrs.class "title" ]
-                [ text c.title ]
-            , div [ Attrs.class "price" ]
-                [ text <| String.append "$" <| toString c.price ]
-            , div [ Attrs.class "category" ]
-                [ text c.category ]
+card : Bool -> Card -> Html Msg
+card isAdmin c =
+    if isAdmin then
+        div [ Attrs.class "card" ]
+            [ div [ Attrs.class "info" ]
+                [ div [ Attrs.class "id" ]
+                    [ text <| toString c.cardId ]
+                , input
+                    [ Attrs.class "title input"
+                    , Attrs.placeholder c.title
+                    , onInput <| AuthenticatedMsgs << TypeEditCardTitle c
+                    ]
+                    []
+                , input
+                    [ Attrs.class "price input"
+                    , Attrs.placeholder <| toString c.price
+                    , onInput <| AuthenticatedMsgs << TypeEditCardPrice c
+                    ]
+                    []
+                , input
+                    [ Attrs.class "category input"
+                    , Attrs.placeholder c.category
+                    , onInput <| AuthenticatedMsgs << TypeEditCardCategory c
+                    ]
+                    []
+                ]
+            , input
+                [ Attrs.class "image-input"
+                , Attrs.placeholder c.imageUrl
+                , onInput <| AuthenticatedMsgs << TypeEditCardImgUrl c
+                ]
+                []
+            , div [ Attrs.class "update-card button", onClick <| AuthenticatedMsgs <| ClickUpdateCard c ]
+                [ text "Update" ]
+            , div [ Attrs.class "delete-card button", onClick <| AuthenticatedMsgs <| ClickDeleteCard c ]
+                [ text "Delete" ]
             ]
-        , div [ Attrs.class "image" ]
-            [ img [ Attrs.src c.imageUrl ] [] ]
-        ]
+    else
+        div [ Attrs.class "card", onClick <| ClickCard c ]
+            [ div [ Attrs.class "info" ]
+                [ div [ Attrs.class "id" ]
+                    [ text <| toString c.cardId ]
+                , div [ Attrs.class "title" ]
+                    [ text c.title ]
+                , div [ Attrs.class "price" ]
+                    [ text <| String.append "$" <| toString c.price ]
+                , div [ Attrs.class "category" ]
+                    [ text c.category ]
+                ]
+            , div [ Attrs.class "image" ]
+                [ img [ Attrs.src c.imageUrl ] [] ]
+            ]
 
 
 addToCartBtn : msg -> Html msg
@@ -212,8 +248,8 @@ cartItemQuantity cardId quantity =
         ]
 
 
-adminPage : TotalSales -> OrderCount -> List Types.Order -> TotalProfit -> CardId -> CardId -> Html Msg
-adminPage totalSales orderCount orderList totalProfit editId delId =
+adminPage : TotalSales -> OrderCount -> List Types.Order -> TotalProfit -> Html Msg
+adminPage totalSales orderCount orderList totalProfit =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
         , div [ Attrs.class "order-list" ]
@@ -224,42 +260,6 @@ adminPage totalSales orderCount orderList totalProfit editId delId =
             [ text <| (++) "Total Profit: $" <| toString totalProfit ]
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
-        , div [ Attrs.class "admin-actions" ]
-            [ text "Admin actions:"
-            , div
-                [ Attrs.class "create-card-btn button"
-                , onClick <| AuthenticatedMsgs <| ClickCreateCard
-                ]
-                [ text "Create new card" ]
-            , div [ Attrs.class "edit-card-wrapper" ]
-                [ text "ID: "
-                , input
-                    [ Attrs.class "edit-card-input input"
-                    , onInput <| AuthenticatedMsgs << TypeEditCardId
-                    , Attrs.value <| toString editId
-                    ]
-                    []
-                , div
-                    [ Attrs.class "edit-card-btn button"
-                    , onClick <| AuthenticatedMsgs ClickEditCard
-                    ]
-                    [ text "Edit card" ]
-                ]
-            , div [ Attrs.class "delete-card-wrapper" ]
-                [ text "ID: "
-                , input
-                    [ Attrs.class "delete-card-input input"
-                    , onInput <| AuthenticatedMsgs << TypeDeleteCardId
-                    , Attrs.value <| toString delId
-                    ]
-                    []
-                , div
-                    [ Attrs.class "delete-card-btn button"
-                    , onClick <| AuthenticatedMsgs ClickDeleteCard
-                    ]
-                    [ text "Delete card" ]
-                ]
-            ]
         ]
 
 

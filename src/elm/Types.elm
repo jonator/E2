@@ -20,10 +20,12 @@ type alias User =
     , cart : Dict CardId (CartItem Card)
     }
 
+
 type alias CardsSoldByCategory =
     { category : String
     , quantity : Int
     }
+
 
 type Page
     = Loading
@@ -31,7 +33,7 @@ type Page
     | Homepage (List Card)
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List Order) TotalProfit CardId CardId
+    | AdminPage TotalSales OrderCount (List Order) TotalProfit
     | CreateCardView CardEditor.Model
     | EditCardView CardId CardEditor.Model
     | DeleteCardView CardId
@@ -125,7 +127,9 @@ type AuthMsg
     | CartCardQuantityChange CardId String
     | ClickMyStore
     | ClickCreateCard
-    | ClickEditCard
-    | TypeEditCardId String
-    | ClickDeleteCard
-    | TypeDeleteCardId String
+    | TypeEditCardTitle Card String
+    | TypeEditCardPrice Card String
+    | TypeEditCardCategory Card String
+    | TypeEditCardImgUrl Card String
+    | ClickUpdateCard Card
+    | ClickDeleteCard Card
