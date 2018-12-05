@@ -122,7 +122,8 @@ type AuthMsg
     | HandleDeleteCartItem (Result String String)
     | HandleCreateCartItem (Result String String)
     | HandleGetAllOrders (Result String (List Order))
-    | HandleGetOrderTotal (Result String Int)
+    | HandleGetTotalSales (Result String Int)
+    | HandleGetTotalProfit (Result String Int)
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut

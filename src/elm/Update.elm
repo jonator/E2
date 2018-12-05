@@ -137,14 +137,39 @@ update msg model =
                         HandleGetAllOrders res ->
                             case res of
                                 Ok orderList ->
-                                    -- call getorder total by this order id, calculate total profit
-                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 } ! []
+                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 }
+                                        ! [ getTotalSales <| AuthenticatedMsgs << HandleGetTotalSales
+                                          , getTotalProfit <| AuthenticatedMsgs << HandleGetTotalProfit
+                                          ]
 
                                 Err _ ->
                                     ignoreOtherCases model
 
-                        HandleGetOrderTotal res ->
-                            ignoreOtherCases model
+                        HandleGetTotalSales res ->
+                            case res of
+                                Ok val ->
+                                    case model.page of
+                                        AdminPage totalSales a b c ->
+                                            { model | page = AdminPage val a b c } ! []
+
+                                        _ ->
+                                            ignoreOtherCases model
+
+                                Err _ ->
+                                    ignoreOtherCases model
+
+                        HandleGetTotalProfit res ->
+                            case res of
+                                Ok val ->
+                                    case model.page of
+                                        AdminPage a b c totalProfit ->
+                                            { model | page = AdminPage a b c val } ! []
+
+                                        _ ->
+                                            ignoreOtherCases model
+
+                                Err _ ->
+                                    ignoreOtherCases model
 
                         ClickAddToCart card ->
                             model ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
