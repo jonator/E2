@@ -15,10 +15,15 @@ type alias User =
     { userId : Int
     , firstName : String
     , lastName : String
+    , email : String
     , isAdmin : Bool
     , cart : Dict CardId (CartItem Card)
     }
 
+type alias CardsSoldByCategory =
+    { category : String
+    , quantity : Int
+    }
 
 type Page
     = Loading
