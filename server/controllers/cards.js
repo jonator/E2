@@ -9,7 +9,7 @@ const formatCard = card => ({
   title: card.Title,
   imageUrl: card.ImageURL,
   price: card.Price,
-  costToProduce: card.CostToProduce,
+  costToProduce: card.CostToProduce * 2,
   category: card.Category,
 })
 
