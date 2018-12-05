@@ -70,19 +70,19 @@ getCard userId hook =
         |> Http.send (processResult hook)
 
 
-createCard : String -> String -> Int  -> Int -> String -> (Result String String -> msg) -> Cmd msg
+createCard : String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
 createCard title imageUrl cost costToProduce category hook =
-    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category ) JD.string
+    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category) JD.string
         |> Http.send (processResult hook)
 
 
 updateCard : Int -> String -> String -> Int -> Int -> String -> (Result String Card -> msg) -> Cmd msg
 updateCard cardId title imageUrl cost costToProduce category hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category ) decodeCard
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard cardId title imageUrl cost costToProduce category) decodeCard
         |> Http.send (processResult hook)
 
 
-deleteCard : Int ->(Result String String -> msg) -> Cmd msg
+deleteCard : Int -> (Result String String -> msg) -> Cmd msg
 deleteCard cardId hook =
     deleteRequest (fullPath ++ "cards/" ++ (toString cardId))
         |> Http.send (processResult hook)
@@ -117,10 +117,12 @@ processUserResult message res =
 
 --Cart
 
+
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-        Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
-            |> Http.send (processResult hook)
+    Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
+        |> Http.send (processResult hook)
+
 
 deleteCartItems : Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItems cartId hook =
@@ -171,7 +173,8 @@ processOrderListResult message res =
         Err httpErr ->
             message <| Err <| httpErrToString httpErr
 
-processOrderResult : (Result String (Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
+
+processOrderResult : (Result String (List Types.Order) -> msg) -> Result Http.Error (List ApiOrder) -> msg
 processOrderResult message res =
     case res of
         Ok order ->
@@ -180,23 +183,31 @@ processOrderResult message res =
         Err httpErr ->
             message <| Err <| httpErrToString httpErr
 
+
 getTotalSales : (Result String Int -> msg) -> Cmd msg
-getTotalSales hook = 
+getTotalSales hook =
     Http.send (processResult hook) <| Http.get (fullPath ++ "orders/totalSales") (field "total" JD.int)
 
+
 getTotalProfit : (Result String Int -> msg) -> Cmd msg
-getTotalProfit hook = 
+getTotalProfit hook =
     Http.send (processResult hook) <| Http.get (fullPath ++ "orders/totalProfit") (field "total" JD.int)
+
 
 getCardsSoldByCategory : (Result String (List CardsSoldByCategory) -> msg) -> Cmd msg
 getCardsSoldByCategory hook =
     Http.send (processResult hook) <| Http.get (fullPath ++ "orders/cardsSoldByCategory") decodeCardsSoldByCategory
 
-createOrder : String -> (Result String Types.Order -> msg) -> Cmd msg
-createOrder userId hook = 
-    Http.post (fullPath ++ "users") (jsonBody <| JE.int userId) decodeOrder
-        |> Http.send (processOrderResult hook)
+
+createOrder : String -> (Result String String -> msg) -> Cmd msg
+createOrder userId hook =
+    Http.post (fullPath ++ "users/" ++ (toString userId)) Http.emptyBody JD.string
+        |> Http.send (processResult hook)
+
+
+
 --Resquest Types
+
 
 deleteRequest : String -> Request String
 deleteRequest url =
