@@ -4,8 +4,8 @@ import Dict
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events exposing (..)
-import Types exposing (..)
 import SignIn
+import Types exposing (..)
 
 
 view : Model -> Html Msg
@@ -59,9 +59,9 @@ content model =
                         _ ->
                             div [] [ text "Must be authenticated to view this page!" ]
     in
-        [ head
-        , div [ Attrs.class "content" ] [ content ]
-        ]
+    [ head
+    , div [ Attrs.class "content" ] [ content ]
+    ]
 
 
 header : Model -> Html Msg
@@ -85,12 +85,14 @@ header model =
                                     ]
                                     [ text "MyStore" ]
                                 ]
+
                             else
                                 []
 
                         cartButton =
                             if user.isAdmin then
                                 div [] []
+
                             else
                                 div
                                     [ Attrs.class "cart button"
@@ -98,29 +100,28 @@ header model =
                                     ]
                                     [ text ("Cart [" ++ cartCount ++ "]") ]
                     in
-                        ([ div [ Attrs.class "user-email" ]
-                            [ text user.email ]
-                         , cartButton
-                         , div
-                            [ Attrs.class "sign-out button"
-                            , onClick <| AuthenticatedMsgs <| ClickSignOut
-                            ]
-                            [ text "Sign out" ]
-                         ]
-                            ++ adminButton
-                        )
+                    [ div [ Attrs.class "user-email" ]
+                        [ text user.email ]
+                    , cartButton
+                    , div
+                        [ Attrs.class "sign-out button"
+                        , onClick <| AuthenticatedMsgs <| ClickSignOut
+                        ]
+                        [ text "Sign out" ]
+                    ]
+                        ++ adminButton
 
                 Nothing ->
                     [ div [ Attrs.class "sign-in button", onClick ClickSignIn ]
                         [ text "Sign in" ]
                     ]
     in
-        div [ Attrs.class "header" ]
-            ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
-                [ text "Cheeky Beak Card Company" ]
-             ]
-                ++ userControls
-            )
+    div [ Attrs.class "header" ]
+        ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
+            [ text "Cheeky Beak Card Company" ]
+         ]
+            ++ userControls
+        )
 
 
 homepage : Bool -> List Card -> Html Msg
@@ -189,6 +190,7 @@ card isAdmin c =
             , div [ Attrs.class "delete-card button", onClick <| AuthenticatedMsgs <| ClickDeleteCard c ]
                 [ text "Delete" ]
             ]
+
     else
         div [ Attrs.class "card", onClick <| ClickCard c ]
             [ div [ Attrs.class "info" ]
@@ -217,10 +219,15 @@ addToCartBtn m =
 
 cart : List (CartItem Card) -> Html Msg
 cart cardList =
-    div [ Attrs.class "cart" ] <|
-        List.map
-            cartItem
-            cardList
+    div [ Attrs.class "cart" ]
+        [ div [ Attrs.class "items" ] <|
+            List.map cartItem cardList
+        , div
+            [ Attrs.class "create-order button"
+            , onClick <| AuthenticatedMsgs <| ClickPurchaseCart
+            ]
+            [ text "Purchase cart" ]
+        ]
 
 
 cartItem : CartItem Card -> Html Msg
@@ -282,15 +289,16 @@ order cOrder =
         c =
             if cOrder.collapsed then
                 []
+
             else
                 List.map orderLine cOrder.item.orderLines
     in
-        div [ Attrs.class "order", onClick <| AuthenticatedMsgs <| ClickToggleOrderCollapsed cOrder.item ]
-            ([ text <| (++) "Order ID: " <| toString cOrder.item.orderId
-             , orderUser cOrder.item.user
-             ]
-                ++ c
-            )
+    div [ Attrs.class "order", onClick <| AuthenticatedMsgs <| ClickToggleOrderCollapsed cOrder.item ]
+        ([ text <| (++) "Order ID: " <| toString cOrder.item.orderId
+         , orderUser cOrder.item.user
+         ]
+            ++ c
+        )
 
 
 orderUser : User -> Html msg
@@ -347,6 +355,7 @@ reduceImageSize link =
                 String.split from str
                     |> String.join to
         in
-            replace "400" "200" link
+        replace "400" "200" link
+
     else
         link

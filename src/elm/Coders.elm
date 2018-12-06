@@ -1,8 +1,8 @@
-module Coders exposing (..)
+module Coders exposing (ApiCartItem, ApiCartUpdate, ApiOrder, ApiUser, apiCartItemToElmCartItem, apiOrderToElmOrder, decodeApiUser, decodeCard, decodeCardList, decodeCardsSoldByCategory, decodeCartItem, decodeCartItemList, decodeCartItemUpdate, decodeOrder, decodeOrderLine, decodeOrderLines, decodeOrderList, encodeCartItem, encodeNewCard, encodeUpdatedCard, encodeUser, processApiUserToElmUser)
 
 import Dict
 import Json.Decode as JD exposing (Decoder, field, int, string)
-import Json.Encode as JE exposing (object, int, string, Value)
+import Json.Encode as JE exposing (Value, int, object, string)
 import Types exposing (..)
 
 
@@ -121,23 +121,23 @@ encodeUser firstName lastName email password =
 
 
 encodeNewCard : String -> String -> Int -> Int -> String -> Value
-encodeNewCard title imageUrl cost costToProduce category =
+encodeNewCard title imageUrl price costToProduce category =
     object
         [ ( "title", JE.string title )
         , ( "imageUrl", JE.string imageUrl )
-        , ( "price", JE.int cost )
+        , ( "price", JE.int price )
         , ( "costToProduce", JE.int costToProduce )
         , ( "category", JE.string category )
         ]
 
 
 encodeUpdatedCard : Int -> String -> String -> Int -> Int -> String -> Value
-encodeUpdatedCard cardId title imageUrl cost costToProduce category =
+encodeUpdatedCard cardId title imageUrl price costToProduce category =
     object
         [ ( "cardId", JE.int cardId )
         , ( "title", JE.string title )
         , ( "imageUrl", JE.string imageUrl )
-        , ( "cost", JE.int cost )
+        , ( "price", JE.int price )
         , ( "costToProduce", JE.int costToProduce )
         , ( "category", JE.string category )
         ]

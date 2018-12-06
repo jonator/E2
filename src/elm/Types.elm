@@ -1,4 +1,4 @@
-module Types exposing (..)
+module Types exposing (AuthMsg(..), Card, CardId, CardsSoldByCategory, CartItem, Collapsible, FirstName, LastName, Model, Msg(..), Order, OrderCount, OrderLine, Page(..), TotalProfit, TotalSales, User)
 
 import Dict exposing (Dict)
 import SignIn
@@ -124,6 +124,7 @@ type AuthMsg
     | HandleGetAllOrders (Result String (List Order))
     | HandleGetTotalSales (Result String Int)
     | HandleGetTotalProfit (Result String Int)
+    | HandleCreateOrder (Result String String)
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut
@@ -138,3 +139,4 @@ type AuthMsg
     | ClickUpdateCard Card
     | ClickDeleteCard Card
     | ClickToggleOrderCollapsed Order
+    | ClickPurchaseCart

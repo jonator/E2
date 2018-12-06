@@ -1,9 +1,10 @@
-module Requests exposing (..)
+module Requests exposing (apiPath, authenticateUser, authority, createCard, createCartItem, createOrder, createUser, deleteCard, deleteCartItem, deleteRequest, fullPath, getAllOrders, getCard, getCards, getCardsSoldByCategory, getCartItems, getTotalProfit, getTotalSales, httpErrToString, processCartItemResult, processOrderListResult, processResult, processUpdateCartItem, processUserResult, putRequest, registerUser, updateCard, updateCartItem)
 
 import Coders exposing (..)
+import Http exposing (Body, Error(..), Request, emptyBody, expectJson, expectString, jsonBody, request)
 import Json.Decode as JD exposing (Decoder, field)
-import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString, expectJson)
 import Types exposing (..)
+
 
 
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
@@ -65,7 +66,7 @@ getCards hook =
 
 getCard : Int -> (Result String Card -> msg) -> Cmd msg
 getCard userId hook =
-    Http.get (fullPath ++ "cards/" ++ (toString userId)) Coders.decodeCard
+    Http.get (fullPath ++ "cards/" ++ toString userId) Coders.decodeCard
         |> Http.send (processResult hook)
 
 
@@ -83,7 +84,7 @@ updateCard c hook =
 
 deleteCard : Int -> (Result String String -> msg) -> Cmd msg
 deleteCard cardId hook =
-    deleteRequest (fullPath ++ "cards/" ++ (toString cardId))
+    deleteRequest (fullPath ++ "cards/" ++ toString cardId)
         |> Http.send (processResult hook)
 
 
@@ -119,7 +120,7 @@ processUserResult message res =
 
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-    Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
+    Http.get (fullPath ++ "users/cartItems/" ++ toString userId) Coders.decodeCartItemList
         |> Http.send (processCartItemResult hook)
 
 
@@ -135,7 +136,7 @@ processCartItemResult message res =
 
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItem userId cardId hook =
-    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString userId) ++ "/" ++ (toString cardId))
+    deleteRequest (fullPath ++ "users/cartItems/" ++ toString userId ++ "/" ++ toString cardId)
         |> Http.send (processResult hook)
 
 
@@ -202,9 +203,9 @@ getCardsSoldByCategory hook =
     Http.send (processResult hook) <| Http.get (fullPath ++ "orders/cardsSoldByCategory") decodeCardsSoldByCategory
 
 
-createOrder : String -> (Result String String -> msg) -> Cmd msg
+createOrder : Int -> (Result String String -> msg) -> Cmd msg
 createOrder userId hook =
-    Http.post (fullPath ++ "users/" ++ (toString userId)) Http.emptyBody JD.string
+    Http.post (fullPath ++ "users/" ++ toString userId) Http.emptyBody JD.string
         |> Http.send (processResult hook)
 
 
