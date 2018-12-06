@@ -33,10 +33,6 @@ const common = {
       },
     ],
   },
-
-  /*  postcss: [
-    autoprefixer({ browsers: ['last 2 versions']})
-  ] */
 };
 
 if (TARGET === 'start') {
@@ -60,7 +56,7 @@ if (TARGET === 'start') {
         },
         {
           test: /\.(css|scss)$/,
-          loaders: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
+          loaders: ['style-loader', 'css-loader', 'sass-loader'],
         },
       ],
     },
@@ -94,7 +90,7 @@ if (TARGET === 'build') {
         },
         {
           test: /\.(css|scss)$/,
-          loaders: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
+          loaders: ['style-loader', 'css-loader', 'sass-loader'],
         },
       ],
     },
