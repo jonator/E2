@@ -194,3 +194,16 @@ DECLARE @Cost INT =
 	)
 SELECT (@Sales - @Cost) / 100 AS total
 GO
+
+ALTER PROCEDURE getAllCards
+AS
+SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+	(
+		SELECT CC.Category
+		FROM Project.CardCategory CC
+		WHERE C.CategoryID = CC.CategoryID
+	) AS Category
+FROM Project.Card C
+WHERE C.IsDeleted = 0
+ORDER BY C.CardID ASC
+GO
