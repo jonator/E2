@@ -70,10 +70,6 @@ const formatCartItem = cartItem => ({
 exports.getCartItems = async (req, res) => {
   const dirtyCartItems = await knex.exec(`getCart @UserID = ${intId(req, 'userId')}`)
   const cartItems = dirtyCartItems.map(formatCartItem)
-  // const cartItems = await db.getCartItemsByUser(intId(req, 'userId'))
-  if (cartItems.length < 1) {
-    return res.status(404).send('User not found or user has no cart items')
-  }
   return res.json(cartItems)
 }
 

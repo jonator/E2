@@ -7,8 +7,8 @@ VALUES
     (
         @title,
         @url,
-        CAST(@price AS DECIMAL(8,2)),
-        CAST(@cost AS DECIMAL(8,2)),
+        CAST(@price AS INT),
+        CAST(@cost AS INT),
         (
             SELECT CC.CategoryID
             FROM Project.CardCategory CC
@@ -16,7 +16,7 @@ VALUES
         )
     );
 
-SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+SELECT C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100,
 	(
 		SELECT CC.Category
 		FROM Project.CardCategory CC
@@ -31,8 +31,8 @@ AS
 UPDATE Project.Card
 SET Title = @title,
 	ImageURL = @url,
-	Price = CAST(@price AS DECIMAL(8,2)),
-	CostToProduce = CAST(@cost AS DECIMAL(8,2)),
+	Price = CAST(@price AS INT),
+	CostToProduce = CAST(@cost AS INT),
 	CategoryID = 
 		(
 			SELECT CC.CategoryID
@@ -41,7 +41,7 @@ SET Title = @title,
 		)
 WHERE CardID = @CardID;
 
-SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+SELECT C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100,
 	(
 		SELECT CC.Category
 		FROM Project.CardCategory CC
@@ -55,18 +55,19 @@ GO
 --Returns CardID of deleted card if card is not found in DB after deletion
 ALTER PROCEDURE deleteCard @CardID INT
 AS
-DELETE Project.Card
+UPDATE Project.Card
+SET IsDeleted = 1
 WHERE CardID = @CardID;
 
 DECLARE @test INT = 
 	(
-		SELECT C.CardID
+		SELECT C.IsDeleted
 		FROM Project.Card C
 		WHERE C.CardID = @CardID
 	)
 
-SET @test = CASE WHEN @test > 0 THEN NULL
-				ELSE @CardID END
+SET @test = CASE WHEN @test = 1 THEN @CardID
+				ELSE NULL END
 
 SELECT @test AS CardID
 GO
@@ -172,7 +173,7 @@ DECLARE @Sales INT =
 		FROM Project.OrderLines OL
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
-SELECT @Sales AS total
+SELECT @Sales / 100 AS total
 GO
 
 --Returns the total profits after the cost to produce each card
@@ -191,5 +192,5 @@ DECLARE @Cost INT =
 		FROM Project.OrderLines OL
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
-SELECT (@Sales - @Cost) AS total
+SELECT (@Sales - @Cost) / 100 AS total
 GO
