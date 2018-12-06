@@ -1,5 +1,9 @@
 # Group 8 Project
 
+### View the app
+
+the app is live at https://cis560final.herokuapp.com/
+
 ### Steps to use
 
 - Clone the git repo
