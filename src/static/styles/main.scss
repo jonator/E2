@@ -99,7 +99,7 @@ input {
 
 .sign-in-wrapper {
   display: inline-flex;
-  width: 100%;
+  width: 70%;
   padding: 20px;
 
 
@@ -132,6 +132,7 @@ input {
 .admin {
   display: grid;
   grid-template-rows: 20px;
+  padding: 25px 0;
 
   .order-list {
     display: grid;
@@ -167,11 +168,11 @@ input {
   .total-sales {
     padding: 20px;
     font-size: 30px;
-    border-top: 5px solid black;
   }
 
   .order-count {
-    padding-left: 20px;
+    padding: 20px;
+    font-size: 30px;
   }
 
   .total-profit {
