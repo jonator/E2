@@ -160,9 +160,10 @@ update msg model =
                         HandleGetAllOrders res ->
                             case res of
                                 Ok orderList ->
-                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 }
+                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 [] }
                                         ! [ getTotalSales <| AuthenticatedMsgs << HandleGetTotalSales
                                           , getTotalProfit <| AuthenticatedMsgs << HandleGetTotalProfit
+                                          , getCardsSoldByCategory <| AuthenticatedMsgs << HandleGetCardsSoldByCategory
                                           ]
 
                                 Err _ ->
@@ -172,8 +173,8 @@ update msg model =
                             case res of
                                 Ok val ->
                                     case model.page of
-                                        AdminPage totalSales a b c ->
-                                            { model | page = AdminPage val a b c } ! []
+                                        AdminPage totalSales a b c d ->
+                                            { model | page = AdminPage val a b c d } ! []
 
                                         _ ->
                                             ignoreOtherCases model
@@ -185,8 +186,21 @@ update msg model =
                             case res of
                                 Ok val ->
                                     case model.page of
-                                        AdminPage a b c totalProfit ->
-                                            { model | page = AdminPage a b c val } ! []
+                                        AdminPage a b c totalProfit d ->
+                                            { model | page = AdminPage a b c val d } ! []
+
+                                        _ ->
+                                            ignoreOtherCases model
+
+                                Err _ ->
+                                    ignoreOtherCases model
+
+                        HandleGetCardsSoldByCategory res ->
+                            case res of
+                                Ok catList ->
+                                    case model.page of
+                                        AdminPage a b c d _ ->
+                                            { model | page = AdminPage a b c d catList } ! []
 
                                         _ ->
                                             ignoreOtherCases model
@@ -360,7 +374,7 @@ update msg model =
 
                         ClickToggleOrderCollapsed order ->
                             case model.page of
-                                AdminPage a b collapsibleOList c ->
+                                AdminPage a b collapsibleOList c d ->
                                     let
                                         updateCollOrder o =
                                             if o.item.orderId == order.orderId then
@@ -369,7 +383,7 @@ update msg model =
                                             else
                                                 o
                                     in
-                                    { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c } ! []
+                                    { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c d } ! []
 
                                 _ ->
                                     ignoreOtherCases model

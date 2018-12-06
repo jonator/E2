@@ -33,8 +33,8 @@ content model =
                         CardView c ->
                             cardView c
 
-                        AdminPage totalSales orderCount orderList totalProfit ->
-                            adminPage totalSales orderCount orderList totalProfit
+                        AdminPage totalSales orderCount orderList totalProfit cardsSoldByCategory ->
+                            adminPage totalSales orderCount orderList totalProfit cardsSoldByCategory
 
                         Loading ->
                             loading
@@ -313,8 +313,8 @@ cartItemQuantity cardId quantity =
         ]
 
 
-adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalProfit -> Html Msg
-adminPage totalSales orderCount orderList totalProfit =
+adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalProfit -> List CardsSoldByCategory -> Html Msg
+adminPage totalSales orderCount orderList totalProfit cardsSoldByCategory =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
         , div [ Attrs.class "total-sales" ]
@@ -323,6 +323,7 @@ adminPage totalSales orderCount orderList totalProfit =
             [ text <| (++) "Total Profit: $" <| toString totalProfit ]
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
+        , cardsByCategoryStats cardsSoldByCategory
         , div [ Attrs.class "order-list" ]
             ([ text "Order(s):" ] ++ List.map order orderList)
         ]
@@ -388,6 +389,27 @@ orderLineCard card =
                 [ Attrs.src <| reduceImageSize card.imageUrl
                 ]
                 []
+            ]
+        ]
+
+
+cardsByCategoryStats : List CardsSoldByCategory -> Html msg
+cardsByCategoryStats catList =
+    div [ Attrs.class "category-stats" ]
+        ([ text "Number of cards sold by category:" ]
+            ++ List.map categoryStat catList
+        )
+
+
+categoryStat : CardsSoldByCategory -> Html msg
+categoryStat cardCat =
+    div [ Attrs.class "card-cat-stat" ]
+        [ div [ Attrs.class "category" ]
+            [ text <| String.append "Category: " cardCat.category ]
+        , div [ Attrs.class "number" ]
+            [ text <|
+                String.append "Quantity: " <|
+                    toString cardCat.quantity
             ]
         ]
 

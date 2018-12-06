@@ -6,8 +6,6 @@ module Types exposing
     , CartItem
     , Collapsible
     , CreateCardModel
-    , FirstName
-    , LastName
     , Model
     , Msg(..)
     , Order
@@ -51,7 +49,7 @@ type Page
     | Homepage (List Card) CreateCardModel
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit
+    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit (List CardsSoldByCategory)
     | DeleteCardView CardId
 
 
@@ -90,14 +88,6 @@ type alias OrderCount =
 
 type alias TotalProfit =
     Int
-
-
-type alias FirstName =
-    String
-
-
-type alias LastName =
-    String
 
 
 type alias CardId =
@@ -152,6 +142,7 @@ type AuthMsg
     | HandleGetAllOrders (Result String (List Order))
     | HandleGetTotalSales (Result String Int)
     | HandleGetTotalProfit (Result String Int)
+    | HandleGetCardsSoldByCategory (Result String (List CardsSoldByCategory))
     | HandleCreateOrder (Result String String)
     | ClickAddToCart Card
     | ClickCart
