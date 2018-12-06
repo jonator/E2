@@ -166,6 +166,7 @@ type AuthMsg
     | TypeEditCardImgUrl Card String
     | TypeEditNewCardTitle String
     | TypeEditNewCardPrice String
+    | TypeEditNewCardCostToProduce String
     | TypeEditNewCardCategory String
     | TypeEditNewCardImgUrl String
     | ClickUpdateCard Card

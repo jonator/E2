@@ -144,6 +144,12 @@ homepage isAdmin cardList createCardModel =
                     ]
                     []
                 , input
+                    [ Attrs.class "cost-to-produce input"
+                    , Attrs.placeholder "Cost to produce"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardCostToProduce
+                    ]
+                    []
+                , input
                     [ Attrs.class "category input"
                     , Attrs.placeholder "category"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardCategory
@@ -159,14 +165,16 @@ homepage isAdmin cardList createCardModel =
                     [ Attrs.class "create-card button"
                     , onClick <| AuthenticatedMsgs <| ClickCreateCard
                     ]
-                    []
+                    [ text "Create new card" ]
                 ]
 
             else
                 []
     in
     div [ Attrs.class "cards" ] <|
-        List.map (card isAdmin) cardList
+        (createCardPrompt
+            ++ List.map (card isAdmin) cardList
+        )
 
 
 cardView : Card -> Html Msg
@@ -196,7 +204,7 @@ card isAdmin c =
         div [ Attrs.class "card" ]
             [ div [ Attrs.class "info" ]
                 [ div [ Attrs.class "id" ]
-                    [ text <| toString c.cardId ]
+                    [ text <| String.append "ID: " <| toString c.cardId ]
                 , input
                     [ Attrs.class "title input"
                     , Attrs.placeholder c.title
@@ -233,14 +241,12 @@ card isAdmin c =
     else
         div [ Attrs.class "card", onClick <| ClickCard c ]
             [ div [ Attrs.class "info" ]
-                [ div [ Attrs.class "id" ]
-                    [ text <| toString c.cardId ]
-                , div [ Attrs.class "title" ]
-                    [ text c.title ]
+                [ div [ Attrs.class "title" ]
+                    [ text <| String.append "Title: " <| c.title ]
                 , div [ Attrs.class "price" ]
-                    [ text <| String.append "$" <| toString c.price ]
+                    [ text <| String.append "Price: $" <| toString c.price ]
                 , div [ Attrs.class "category" ]
-                    [ text c.category ]
+                    [ text <| String.append "Category: " <| c.category ]
                 ]
             , div [ Attrs.class "image" ]
                 [ img [ Attrs.src c.imageUrl ] [] ]

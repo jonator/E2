@@ -225,7 +225,23 @@ update msg model =
                                 ignoreOtherCases model
 
                         ClickCreateCard ->
-                            ignoreOtherCases model
+                            case model.page of
+                                Homepage _ ccModel ->
+                                    let
+                                        cmd =
+                                            case Result.map2 (\x y -> ( x, y )) (String.toInt ccModel.price) (String.toInt ccModel.costToProduce) of
+                                                Ok ( price, costToProduce ) ->
+                                                    createCard ccModel.title ccModel.imgUrl price costToProduce ccModel.category <|
+                                                        AuthenticatedMsgs
+                                                            << HandleCreateCard
+
+                                                Err err ->
+                                                    Cmd.none
+                                    in
+                                    ( model, cmd )
+
+                                _ ->
+                                    ignoreOtherCases model
 
                         TypeEditNewCardTitle str ->
                             case model.page of
@@ -239,6 +255,14 @@ update msg model =
                             case model.page of
                                 Homepage cardList createCardModel ->
                                     { model | page = Homepage cardList { createCardModel | price = str } } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
+                        TypeEditNewCardCostToProduce str ->
+                            case model.page of
+                                Homepage cardList createCardModel ->
+                                    { model | page = Homepage cardList { createCardModel | costToProduce = str } } ! []
 
                                 _ ->
                                     ignoreOtherCases model

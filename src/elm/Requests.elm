@@ -1,4 +1,32 @@
-module Requests exposing (apiPath, authenticateUser, authority, createCard, createCartItem, createOrder, createUser, deleteCard, deleteCartItem, deleteRequest, fullPath, getAllOrders, getCard, getCards, getCardsSoldByCategory, getCartItems, getTotalProfit, getTotalSales, httpErrToString, processCartItemResult, processOrderListResult, processResult, processUpdateCartItem, processUserResult, putRequest, registerUser, updateCard, updateCartItem)
+module Requests exposing
+    ( apiPath
+    , authenticateUser
+    , authority
+    , createCard
+    , createCartItem
+    , createOrder
+    , createUser
+    , deleteCard
+    , deleteCartItem
+    , deleteRequest
+    , fullPath
+    , getAllOrders
+    , getCards
+    , getCardsSoldByCategory
+    , getCartItems
+    , getTotalProfit
+    , getTotalSales
+    , httpErrToString
+    , processCartItemResult
+    , processOrderListResult
+    , processResult
+    , processUpdateCartItem
+    , processUserResult
+    , putRequest
+    , registerUser
+    , updateCard
+    , updateCartItem
+    )
 
 import Coders exposing (..)
 import Http exposing (Body, Error(..), Request, emptyBody, expectJson, expectString, jsonBody, request)
@@ -65,8 +93,8 @@ getCards hook =
 
 
 createCard : String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
-createCard title imageUrl cost costToProduce category hook =
-    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category) JD.string
+createCard title imageUrl price costToProduce category hook =
+    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl price costToProduce category) JD.string
         |> Http.send (processResult hook)
 
 

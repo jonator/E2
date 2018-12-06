@@ -79,6 +79,10 @@ body {
     padding: 20px;
     display: grid;
   }
+
+  div {
+    font-size: 20px;
+  }
 }
 
 .card-view {
@@ -127,6 +131,10 @@ input {
       grid-row-gap: 20px;
     }
   }
+}
+
+.new-card .button {
+  padding-top: 20px;
 }
 
 .admin {
