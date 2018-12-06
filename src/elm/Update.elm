@@ -3,7 +3,19 @@ module Update exposing (update)
 import Dict
 import Requests exposing (..)
 import SignIn exposing (SignInMsg(..))
-import Types exposing (AuthMsg(..), Card, CartItem, Collapsible, Model, Msg(..), Order, Page(..), User)
+import Types
+    exposing
+        ( AuthMsg(..)
+        , Card
+        , CartItem
+        , Collapsible
+        , CreateCardModel
+        , Model
+        , Msg(..)
+        , Order
+        , Page(..)
+        , User
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -12,7 +24,7 @@ update msg model =
         HandleCards res ->
             case res of
                 Ok newCards ->
-                    { model | page = Homepage newCards } ! []
+                    { model | page = Homepage newCards (CreateCardModel "" "" "" "" "") } ! []
 
                 Err _ ->
                     ignoreOtherCases model
@@ -215,9 +227,41 @@ update msg model =
                         ClickCreateCard ->
                             ignoreOtherCases model
 
+                        TypeEditNewCardTitle str ->
+                            case model.page of
+                                Homepage cardList createCardModel ->
+                                    { model | page = Homepage cardList { createCardModel | title = str } } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
+                        TypeEditNewCardPrice str ->
+                            case model.page of
+                                Homepage cardList createCardModel ->
+                                    { model | page = Homepage cardList { createCardModel | price = str } } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
+                        TypeEditNewCardCategory str ->
+                            case model.page of
+                                Homepage cardList createCardModel ->
+                                    { model | page = Homepage cardList { createCardModel | category = str } } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
+                        TypeEditNewCardImgUrl str ->
+                            case model.page of
+                                Homepage cardList createCardModel ->
+                                    { model | page = Homepage cardList { createCardModel | imgUrl = str } } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
                         TypeEditCardTitle card str ->
                             case model.page of
-                                Homepage cardList ->
+                                Homepage cardList createCardModel ->
                                     let
                                         updateTitle c =
                                             if c.cardId == card.cardId then
@@ -226,14 +270,14 @@ update msg model =
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateTitle cardList) } ! []
+                                    { model | page = Homepage (List.map updateTitle cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
                         TypeEditCardPrice card str ->
                             case model.page of
-                                Homepage cardList ->
+                                Homepage cardList createCardModel ->
                                     let
                                         updatePrice c =
                                             if c.cardId == card.cardId then
@@ -247,14 +291,14 @@ update msg model =
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updatePrice cardList) } ! []
+                                    { model | page = Homepage (List.map updatePrice cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
                         TypeEditCardCategory card str ->
                             case model.page of
-                                Homepage cardList ->
+                                Homepage cardList createCardModel ->
                                     let
                                         updateCat c =
                                             if c.cardId == card.cardId then
@@ -263,14 +307,14 @@ update msg model =
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateCat cardList) } ! []
+                                    { model | page = Homepage (List.map updateCat cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
                         TypeEditCardImgUrl card str ->
                             case model.page of
-                                Homepage cardList ->
+                                Homepage cardList createCardModel ->
                                     let
                                         updateImgUrl c =
                                             if c.cardId == card.cardId then
@@ -279,7 +323,7 @@ update msg model =
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateImgUrl cardList) } ! []
+                                    { model | page = Homepage (List.map updateImgUrl cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model

@@ -27,8 +27,8 @@ content model =
                         CartView ->
                             cart <| List.map Tuple.second <| Dict.toList user.cart
 
-                        Homepage cardList ->
-                            homepage user.isAdmin cardList
+                        Homepage cardList createCardModel ->
+                            homepage user.isAdmin cardList createCardModel
 
                         CardView c ->
                             cardView c
@@ -44,8 +44,8 @@ content model =
 
                 Nothing ->
                     case model.page of
-                        Homepage cardList ->
-                            homepage False cardList
+                        Homepage cardList createCardModel ->
+                            homepage False cardList createCardModel
 
                         CardView c ->
                             cardView c
@@ -124,8 +124,47 @@ header model =
         )
 
 
-homepage : Bool -> List Card -> Html Msg
-homepage isAdmin cardList =
+homepage : Bool -> List Card -> CreateCardModel -> Html Msg
+homepage isAdmin cardList createCardModel =
+    let
+        createCardPrompt =
+            if isAdmin then
+                [ div [ Attrs.class "new-card" ]
+                    [ text "Create new card:" ]
+                , input
+                    [ Attrs.class "title input"
+                    , Attrs.placeholder "title"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardTitle
+                    ]
+                    []
+                , input
+                    [ Attrs.class "price input"
+                    , Attrs.placeholder "Price"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardPrice
+                    ]
+                    []
+                , input
+                    [ Attrs.class "category input"
+                    , Attrs.placeholder "category"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardCategory
+                    ]
+                    []
+                , input
+                    [ Attrs.class "image-input"
+                    , Attrs.placeholder "image url"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardImgUrl
+                    ]
+                    []
+                , div
+                    [ Attrs.class "create-card button"
+                    , onClick <| AuthenticatedMsgs <| ClickCreateCard
+                    ]
+                    []
+                ]
+
+            else
+                []
+    in
     div [ Attrs.class "cards" ] <|
         List.map (card isAdmin) cardList
 

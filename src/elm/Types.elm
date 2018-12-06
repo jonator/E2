@@ -1,4 +1,23 @@
-module Types exposing (AuthMsg(..), Card, CardId, CardsSoldByCategory, CartItem, Collapsible, FirstName, LastName, Model, Msg(..), Order, OrderCount, OrderLine, Page(..), TotalProfit, TotalSales, User)
+module Types exposing
+    ( AuthMsg(..)
+    , Card
+    , CardId
+    , CardsSoldByCategory
+    , CartItem
+    , Collapsible
+    , CreateCardModel
+    , FirstName
+    , LastName
+    , Model
+    , Msg(..)
+    , Order
+    , OrderCount
+    , OrderLine
+    , Page(..)
+    , TotalProfit
+    , TotalSales
+    , User
+    )
 
 import Dict exposing (Dict)
 import SignIn
@@ -29,7 +48,7 @@ type alias CardsSoldByCategory =
 type Page
     = Loading
     | SignIn SignIn.Model
-    | Homepage (List Card)
+    | Homepage (List Card) CreateCardModel
     | CardView Card
     | CartView
     | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit
@@ -43,6 +62,15 @@ type alias Card =
     , price : Int
     , costToProduce : Int
     , category : String
+    }
+
+
+type alias CreateCardModel =
+    { title : String
+    , price : String
+    , costToProduce : String
+    , category : String
+    , imgUrl : String
     }
 
 
@@ -136,6 +164,10 @@ type AuthMsg
     | TypeEditCardPrice Card String
     | TypeEditCardCategory Card String
     | TypeEditCardImgUrl Card String
+    | TypeEditNewCardTitle String
+    | TypeEditNewCardPrice String
+    | TypeEditNewCardCategory String
+    | TypeEditNewCardImgUrl String
     | ClickUpdateCard Card
     | ClickDeleteCard Card
     | ClickToggleOrderCollapsed Order
