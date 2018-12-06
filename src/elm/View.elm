@@ -272,14 +272,14 @@ adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalP
 adminPage totalSales orderCount orderList totalProfit =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
-        , div [ Attrs.class "order-list" ]
-            ([ text "Order(s):" ] ++ List.map order orderList)
         , div [ Attrs.class "total-sales" ]
             [ text <| (++) "Total Sales: $" <| toString totalSales ]
         , div [ Attrs.class "total-profit" ]
             [ text <| (++) "Total Profit: $" <| toString totalProfit ]
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
+        , div [ Attrs.class "order-list" ]
+            ([ text "Order(s):" ] ++ List.map order orderList)
         ]
 
 
