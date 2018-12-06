@@ -6,27 +6,6 @@ import Json.Encode as JE exposing (object, int, string, Value)
 import Types exposing (..)
 
 
-type alias ApiCartItem =
-    { cardId : Int
-    , title : String
-    , imageUrl : String
-    , price : Int
-    , costToProduce : Int
-    , category : String
-    , quantity : Int
-    }
-
-
-type alias ApiOrderUser =
-    { userId : Int
-    , firstName : String
-    , lastName : String
-    , email : String
-    , password : String
-    , isAdmin : Bool
-    }
-
-
 type alias ApiOrder =
     { orderId : Int
     , user : ApiUser
@@ -36,12 +15,24 @@ type alias ApiOrder =
 
 
 type alias ApiUser =
-    { firstName : String
+    { userId : Int
+    , firstName : String
     , lastName : String
     , email : String
-    , password : String
     , isAdmin : Bool
-    , userId : Int
+    }
+
+
+type alias ApiCartItem a =
+    { card : a
+    , quantity : Int
+    }
+
+
+type alias ApiCartUpdate =
+    { userId : Int
+    , cardId : Int
+    , quantity : Int
     }
 
 
@@ -61,26 +52,29 @@ decodeCardList =
     JD.list decodeCard
 
 
-decodeCartItem : Decoder ApiCartItem
+decodeCartItem : Decoder (ApiCartItem Card)
 decodeCartItem =
-    JD.map7 ApiCartItem
-        (field "cardId" JD.int)
-        (field "title" JD.string)
-        (field "imageUrl" JD.string)
-        (field "price" JD.int)
-        (field "costToProduce" JD.int)
-        (field "category" JD.string)
+    JD.map2 ApiCartItem
+        (field "card" decodeCard)
         (field "quantity" JD.int)
 
 
-decodeCartItemList : Decoder (List ApiCartItem)
+decodeCartItemUpdate : Decoder ApiCartUpdate
+decodeCartItemUpdate =
+    JD.map3 ApiCartUpdate
+        (field "userId" JD.int)
+        (field "cardId" JD.int)
+        (field "quantity" JD.int)
+
+
+decodeCartItemList : Decoder (List (ApiCartItem Card))
 decodeCartItemList =
     JD.list decodeCartItem
 
 
-apiCartItemToElmCartItem : ApiCartItem -> CartItem Card
-apiCartItemToElmCartItem apiCartItem =
-    CartItem apiCartItem.quantity (Card apiCartItem.cardId apiCartItem.title apiCartItem.imageUrl apiCartItem.price apiCartItem.costToProduce apiCartItem.category)
+apiCartItemToElmCartItem : ApiCartItem a -> CartItem a
+apiCartItemToElmCartItem apiItem =
+    CartItem apiItem.card apiItem.quantity
 
 
 encodeCartItem : Int -> Int -> Int -> Value
@@ -94,59 +88,58 @@ encodeCartItem userId cardId quantity =
 
 decodeApiUser : Decoder ApiUser
 decodeApiUser =
-    JD.map6 ApiUser
+    JD.map5 ApiUser
+        (field "userId" JD.int)
         (field "firstName" JD.string)
         (field "lastName" JD.string)
         (field "email" JD.string)
-        (field "password" JD.string)
         (field "isAdmin" JD.bool)
-        (field "userId" JD.int)
+
+
+decodeCardsSoldByCategory : Decoder (List CardsSoldByCategory)
+decodeCardsSoldByCategory =
+    JD.list
+        (JD.map2 CardsSoldByCategory
+            (field "category" JD.string)
+            (field "quantity" JD.int)
+        )
 
 
 processApiUserToElmUser : ApiUser -> User
 processApiUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.isAdmin Dict.empty
+    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.email apiUser.isAdmin Dict.empty
 
 
-encodeUser : String -> String -> String -> String -> Bool -> Value
-encodeUser firstName lastName email password isAdmin =
+encodeUser : String -> String -> String -> String -> Value
+encodeUser firstName lastName email password =
     object
         [ ( "firstName", JE.string firstName )
         , ( "lastName", JE.string lastName )
         , ( "email", JE.string email )
         , ( "password", JE.string password )
-        , ( "isAdmin", JE.bool isAdmin )
         ]
 
 
-encodeNewCard : String -> String -> Int -> String -> Int -> Value
-encodeNewCard title imageUrl cost category userId =
+encodeNewCard : String -> String -> Int -> Int -> String -> Value
+encodeNewCard title imageUrl cost costToProduce category =
     object
-        [ ( "card"
-          , object
-                [ ( "title", JE.string title )
-                , ( "imageUrl", JE.string imageUrl )
-                , ( "cost", JE.int cost )
-                , ( "category", JE.string category )
-                ]
-          )
-        , ( "userId", JE.int userId )
+        [ ( "title", JE.string title )
+        , ( "imageUrl", JE.string imageUrl )
+        , ( "price", JE.int cost )
+        , ( "costToProduce", JE.int costToProduce )
+        , ( "category", JE.string category )
         ]
 
 
-encodeUpdatedCard : Int -> String -> String -> Int -> String -> Int -> Value
-encodeUpdatedCard cardId title imageUrl cost category userId =
+encodeUpdatedCard : Int -> String -> String -> Int -> Int -> String -> Value
+encodeUpdatedCard cardId title imageUrl cost costToProduce category =
     object
-        [ ( "card"
-          , object
-                [ ( "cardId", JE.int cardId )
-                , ( "title", JE.string title )
-                , ( "imageUrl", JE.string imageUrl )
-                , ( "cost", JE.int cost )
-                , ( "category", JE.string category )
-                ]
-          )
-        , ( "userId", JE.int userId )
+        [ ( "cardId", JE.int cardId )
+        , ( "title", JE.string title )
+        , ( "imageUrl", JE.string imageUrl )
+        , ( "cost", JE.int cost )
+        , ( "costToProduce", JE.int costToProduce )
+        , ( "category", JE.string category )
         ]
 
 
@@ -159,41 +152,14 @@ decodeOrder : Decoder ApiOrder
 decodeOrder =
     JD.map4 ApiOrder
         (field "orderId" JD.int)
-        (field "user" decodeApiOrderUser)
+        (field "user" decodeApiUser)
         (field "orderLines" decodeOrderLines)
         (field "orderDate" JD.string)
 
 
 apiOrderToElmOrder : ApiOrder -> Types.Order
 apiOrderToElmOrder apiOrder =
-    Order apiOrder.orderId (apiOrderUserToElmUser apiOrder.user) apiOrder.orderLines apiOrder.orderDate
-
-
-apiOrderUserToElmUser : ApiOrderUser -> User
-apiOrderUserToElmUser apiUser =
-    User apiUser.userId apiUser.firstName apiUser.lastName apiUser.isAdmin Dict.empty
-
-
-decodeApiOrderUser : Decoder ApiOrderUser
-decodeApiOrderUser =
-    JD.map6 ApiOrderUser
-        (field "userId" JD.int)
-        (field "firstName" JD.string)
-        (field "lastName" JD.string)
-        (field "email" JD.string)
-        (field "password" JD.string)
-        (field "isAdmin" JD.bool)
-
-
-decodeApiAuthenticateUser : Decoder ApiUser
-decodeApiAuthenticateUser =
-    JD.map6 ApiUser
-        (field "firstName" JD.string)
-        (field "lastName" JD.string)
-        (field "email" JD.string)
-        (field "password" JD.string)
-        (field "isAdmin" JD.bool)
-        (field "userId" JD.int)
+    Order apiOrder.orderId (processApiUserToElmUser apiOrder.user) apiOrder.orderLines apiOrder.orderDate
 
 
 decodeOrderLine : Decoder OrderLine

@@ -220,3 +220,10 @@ AS
 	GROUP BY CC.CategoryID, CC.Category
 	Order BY CC.CategoryID ASC
 GO
+
+CREATE PROCEDURE currentCategories
+AS
+	SELECT CC.Category
+	FROM Project.CardCategory CC
+	Order BY CC.CategoryID ASC
+GO

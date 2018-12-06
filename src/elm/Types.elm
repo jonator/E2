@@ -1,6 +1,5 @@
 module Types exposing (..)
 
-import CardEditor
 import Dict exposing (Dict)
 import SignIn
 
@@ -15,8 +14,15 @@ type alias User =
     { userId : Int
     , firstName : String
     , lastName : String
+    , email : String
     , isAdmin : Bool
     , cart : Dict CardId (CartItem Card)
+    }
+
+
+type alias CardsSoldByCategory =
+    { category : String
+    , quantity : Int
     }
 
 
@@ -26,9 +32,7 @@ type Page
     | Homepage (List Card)
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List Order) TotalProfit CardId CardId
-    | CreateCardView CardEditor.Model
-    | EditCardView CardId CardEditor.Model
+    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit
     | DeleteCardView CardId
 
 
@@ -43,8 +47,8 @@ type alias Card =
 
 
 type alias CartItem a =
-    { quantity : Int
-    , item : a
+    { item : a
+    , quantity : Int
     }
 
 
@@ -70,6 +74,12 @@ type alias LastName =
 
 type alias CardId =
     Int
+
+
+type alias Collapsible a =
+    { item : a
+    , collapsed : Bool
+    }
 
 
 type alias Order =
@@ -112,15 +122,19 @@ type AuthMsg
     | HandleDeleteCartItem (Result String String)
     | HandleCreateCartItem (Result String String)
     | HandleGetAllOrders (Result String (List Order))
-    | HandleGetOrderTotal (Result String Int)
-    | CardEditorMsgs CardEditor.CardEditorMsg
+    | HandleGetTotalSales (Result String Int)
+    | HandleGetTotalProfit (Result String Int)
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut
     | CartCardQuantityChange CardId String
     | ClickMyStore
     | ClickCreateCard
-    | ClickEditCard
-    | TypeEditCardId String
-    | ClickDeleteCard
-    | TypeDeleteCardId String
+    | ClickDeleteCartItem (CartItem Card)
+    | TypeEditCardTitle Card String
+    | TypeEditCardPrice Card String
+    | TypeEditCardCategory Card String
+    | TypeEditCardImgUrl Card String
+    | ClickUpdateCard Card
+    | ClickDeleteCard Card
+    | ClickToggleOrderCollapsed Order

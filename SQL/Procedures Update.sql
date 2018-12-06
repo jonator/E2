@@ -71,8 +71,6 @@ SET @test = CASE WHEN @test > 0 THEN NULL
 SELECT @test AS CardID
 GO
 
-
-
 ALTER PROCEDURE removeFromCart @UserID INT, @CardID INT
 AS
 DELETE 
@@ -148,17 +146,6 @@ WHERE O.OrderID = @last
 ORDER BY O.OrderID ASC
 GO
 
-
-
-CREATE PROCEDURE currentCategories
-AS
-	SELECT CC.Category
-	FROM Project.CardCategory CC
-	Order BY CC.CategoryID ASC
-GO
-
-
-
 ALTER PROCEDURE authenticateUser @email nvarchar(32), @password nvarchar(32)
 AS
 SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin
@@ -175,4 +162,34 @@ FROM Project.[Order] O
 	INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	INNER JOIN Project.CardCategory CC ON CC.CategoryID = C.CategoryID
 ORDER BY O.OrderID ASC
+GO
+
+ALTER PROCEDURE totalSales
+AS
+DECLARE @Sales INT = 
+	(
+		SELECT SUM(OL.Quantity * C.Price)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+SELECT @Sales AS total
+GO
+
+--Returns the total profits after the cost to produce each card
+ALTER PROCEDURE totalProfit
+AS
+DECLARE @Sales INT = 
+	(
+		SELECT SUM(OL.Quantity * C.Price)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+
+DECLARE @Cost INT = 
+	(
+		SELECT SUM(OL.Quantity * C.CostToProduce)
+		FROM Project.OrderLines OL
+			INNER JOIN Project.Card C ON C.CardID = OL.CardID
+	)
+SELECT (@Sales - @Cost) AS total
 GO

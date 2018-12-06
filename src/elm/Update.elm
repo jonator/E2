@@ -1,9 +1,8 @@
 module Update exposing (update)
 
-import CardEditor exposing (CardEditorMsg(..))
 import Dict
 import Requests exposing (..)
-import Types exposing (Card, CartItem, Model, Msg(..), Order, AuthMsg(..), Page(..), User)
+import Types exposing (Card, CartItem, Model, Msg(..), Collapsible, Order, AuthMsg(..), Page(..), User)
 import SignIn exposing (SignInMsg(..))
 
 
@@ -98,10 +97,10 @@ update msg model =
                     case authMsg of
                         HandleGetUserCart res ->
                             case res of
-                                Ok cart ->
+                                Ok cartItems ->
                                     let
                                         newCart =
-                                            List.map (\x -> ( x.item.cardId, x )) cart
+                                            List.map (\x -> ( x.item.cardId, x )) cartItems
 
                                         newUser =
                                             { user | cart = Dict.fromList newCart }
@@ -112,42 +111,68 @@ update msg model =
                                     ignoreOtherCases model
 
                         HandleCreateCard res ->
-                            ignoreOtherCases model
+                            -- for simplicity, on the following we ignore whether it
+                            -- succeeds or fails and will just get whats
+                            -- on the server
+                            model ! [ getCards HandleCards ]
 
                         HandleUpdateCard res ->
-                            ignoreOtherCases model
+                            model ! [ getCards HandleCards ]
 
                         HandleDeleteCard res ->
-                            ignoreOtherCases model
+                            model ! [ getCards HandleCards ]
+
+                        ClickDeleteCartItem cartItem ->
+                            model ! [ deleteCartItem user.userId cartItem.item.cardId <| AuthenticatedMsgs << HandleDeleteCartItem ]
 
                         HandleDeleteCartItem res ->
-                            ignoreOtherCases model
+                            model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleCreateCartItem res ->
                             model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleUpdateCartItem res ->
-                            ignoreOtherCases model
+                            model ! [ getCartItems user.userId <| AuthenticatedMsgs << HandleGetUserCart ]
 
                         HandleGetAllOrders res ->
                             case res of
                                 Ok orderList ->
-                                    -- call getorder total by this order id, calculate total profit
-                                    { model | page = AdminPage 0 (List.length orderList) orderList 0 0 0 } ! []
+                                    { model | page = AdminPage 0 (List.length orderList) (List.map (toCollapsibleOrder True) orderList) 0 }
+                                        ! [ getTotalSales <| AuthenticatedMsgs << HandleGetTotalSales
+                                          , getTotalProfit <| AuthenticatedMsgs << HandleGetTotalProfit
+                                          ]
 
                                 Err _ ->
                                     ignoreOtherCases model
 
-                        HandleGetOrderTotal res ->
-                            ignoreOtherCases model
+                        HandleGetTotalSales res ->
+                            case res of
+                                Ok val ->
+                                    case model.page of
+                                        AdminPage totalSales a b c ->
+                                            { model | page = AdminPage val a b c } ! []
+
+                                        _ ->
+                                            ignoreOtherCases model
+
+                                Err _ ->
+                                    ignoreOtherCases model
+
+                        HandleGetTotalProfit res ->
+                            case res of
+                                Ok val ->
+                                    case model.page of
+                                        AdminPage a b c totalProfit ->
+                                            { model | page = AdminPage a b c val } ! []
+
+                                        _ ->
+                                            ignoreOtherCases model
+
+                                Err _ ->
+                                    ignoreOtherCases model
 
                         ClickAddToCart card ->
-                            { model
-                                | user =
-                                    Just <|
-                                        addCardToUsersCart user card
-                            }
-                                ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
+                            model ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
 
                         ClickCart ->
                             { model | page = CartView } ! []
@@ -157,31 +182,11 @@ update msg model =
 
                         CartCardQuantityChange cardId stringValue ->
                             case String.toInt stringValue of
-                                Ok val ->
-                                    let
-                                        newUser =
-                                            { user
-                                                | cart =
-                                                    Dict.update
-                                                        cardId
-                                                        (\y ->
-                                                            case y of
-                                                                Just item ->
-                                                                    if val > 0 then
-                                                                        Just { item | quantity = val }
-                                                                    else
-                                                                        Nothing
-
-                                                                Nothing ->
-                                                                    Nothing
-                                                        )
-                                                        user.cart
-                                            }
-                                    in
-                                        if val > 0 then
-                                            { model | user = Just newUser } ! []
-                                        else
-                                            ignoreOtherCases model
+                                Ok quant ->
+                                    if quant > 0 then
+                                        model ! [ updateCartItem user.userId cardId quant <| AuthenticatedMsgs << HandleUpdateCartItem ]
+                                    else
+                                        model ! [ deleteCartItem user.userId cardId <| AuthenticatedMsgs << HandleDeleteCartItem ]
 
                                 --api to update cart item to val
                                 Err _ ->
@@ -195,66 +200,90 @@ update msg model =
                                 ignoreOtherCases model
 
                         ClickCreateCard ->
-                            { model | page = CreateCardView CardEditor.init } ! []
+                            ignoreOtherCases model
 
-                        CardEditorMsgs ceMsg ->
+                        TypeEditCardTitle card str ->
                             case model.page of
-                                CreateCardView ceModel ->
-                                    case ceMsg of
-                                        SubmitCard title img cost category ->
-                                            -- api call to create card
-                                            { model | page = Loading } ! []
-
-                                        _ ->
-                                            let
-                                                newCEModel =
-                                                    CardEditor.update ceMsg ceModel
-                                            in
-                                                { model | page = CreateCardView newCEModel } ! []
+                                Homepage cardList ->
+                                    let
+                                        updateTitle c =
+                                            if c.cardId == card.cardId then
+                                                { c | title = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateTitle cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        ClickEditCard ->
+                        TypeEditCardPrice card str ->
                             case model.page of
-                                AdminPage a b c d editId e ->
-                                    -- call get card by id, call orders apis
-                                    { model | page = AdminPage a b c d 0 e } ! []
+                                Homepage cardList ->
+                                    let
+                                        updatePrice c =
+                                            if c.cardId == card.cardId then
+                                                case String.toInt str of
+                                                    Ok v ->
+                                                        { c | price = v }
+
+                                                    Err _ ->
+                                                        c
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updatePrice cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        TypeEditCardId val ->
+                        TypeEditCardCategory card str ->
                             case model.page of
-                                AdminPage a b c d _ e ->
-                                    case String.toInt val of
-                                        Ok v ->
-                                            { model | page = AdminPage a b c d v e } ! []
-
-                                        Err _ ->
-                                            ignoreOtherCases model
+                                Homepage cardList ->
+                                    let
+                                        updateCat c =
+                                            if c.cardId == card.cardId then
+                                                { c | category = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateCat cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        ClickDeleteCard ->
+                        TypeEditCardImgUrl card str ->
                             case model.page of
-                                AdminPage a b c d e delId ->
-                                    --call delete card by id, call orders apis
-                                    { model | page = AdminPage a b c d e 0 } ! []
+                                Homepage cardList ->
+                                    let
+                                        updateImgUrl c =
+                                            if c.cardId == card.cardId then
+                                                { c | imageUrl = str }
+                                            else
+                                                c
+                                    in
+                                        { model | page = Homepage (List.map updateImgUrl cardList) } ! []
 
                                 _ ->
                                     ignoreOtherCases model
 
-                        TypeDeleteCardId val ->
-                            case model.page of
-                                AdminPage a b c d e _ ->
-                                    case String.toInt val of
-                                        Ok v ->
-                                            { model | page = AdminPage a b c d e v } ! []
+                        ClickUpdateCard card ->
+                            model ! [ updateCard card <| AuthenticatedMsgs << HandleUpdateCard ]
 
-                                        Err _ ->
-                                            ignoreOtherCases model
+                        ClickDeleteCard card ->
+                            model ! [ deleteCard card.cardId <| AuthenticatedMsgs << HandleDeleteCard ]
+
+                        ClickToggleOrderCollapsed order ->
+                            case model.page of
+                                AdminPage a b collapsibleOList c ->
+                                    let
+                                        updateCollOrder o =
+                                            if o.item.orderId == order.orderId then
+                                                { o | collapsed = not o.collapsed }
+                                            else
+                                                o
+                                    in
+                                        { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -268,82 +297,6 @@ ignoreOtherCases m =
     m ! []
 
 
-addCardToUsersCart : User -> Card -> User
-addCardToUsersCart user card =
-    let
-        itemAdd mI =
-            case mI of
-                Just i ->
-                    Just { i | quantity = i.quantity + 1 }
-
-                Nothing ->
-                    Just <| CartItem 1 card
-    in
-        { user | cart = Dict.update card.cardId itemAdd user.cart }
-
-
-fakeAdminPage : Page
-fakeAdminPage =
-    AdminPage 2323 2 fakeOrderList 233 0 0
-
-
-fakeOrderList : List Types.Order
-fakeOrderList =
-    [ { orderId = 23
-      , user =
-            { userId = 23
-            , firstName = "Bob"
-            , lastName = "Sagget"
-            , isAdmin = False
-            , cart = Dict.empty
-            }
-      , orderLines =
-            [ { orderLineId = 1
-              , card =
-                    { cardId = 2
-                    , title = "Ignoramus"
-                    , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/ALL-THE-DAYS1_400x.jpg?v=1420127707"
-                    , price = 232
-                    , costToProduce = 23
-                    , category = "Apples"
-                    }
-              , quantity = 33
-              }
-            ]
-      , orderDate = "Sept 2"
-      }
-    , { orderId = 44
-      , user =
-            { userId = 4
-            , firstName = "Bill"
-            , lastName = "Worthy"
-            , isAdmin = False
-            , cart = Dict.empty
-            }
-      , orderLines =
-            [ { orderLineId = 2
-              , card =
-                    { cardId = 4
-                    , title = "Apple Juice"
-                    , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/JOY1_400x.jpg?v=1446490387"
-                    , price = 22
-                    , costToProduce = 2
-                    , category = "Sleek"
-                    }
-              , quantity = 1
-              }
-            , { orderLineId = 4
-              , card =
-                    { cardId = 5
-                    , title = "Wonderbread"
-                    , imageUrl = "https://cdn.shopify.com/s/files/1/0558/4569/products/ALWAYS-FOREVER3_400x.jpg?v=1404230274"
-                    , price = 44
-                    , costToProduce = 12
-                    , category = "Unbranded"
-                    }
-              , quantity = 2
-              }
-            ]
-      , orderDate = "October 2"
-      }
-    ]
+toCollapsibleOrder : Bool -> Types.Order -> Collapsible Types.Order
+toCollapsibleOrder isOpen o =
+    Collapsible o isOpen
