@@ -7,8 +7,8 @@ VALUES
     (
         @title,
         @url,
-        CAST(@price AS DECIMAL(8,2)),
-        CAST(@cost AS DECIMAL(8,2)),
+        CAST(@price AS INT),
+        CAST(@cost AS INT),
         (
             SELECT CC.CategoryID
             FROM Project.CardCategory CC
@@ -31,8 +31,8 @@ AS
 UPDATE Project.Card
 SET Title = @title,
 	ImageURL = @url,
-	Price = CAST(@price AS DECIMAL(8,2)),
-	CostToProduce = CAST(@cost AS DECIMAL(8,2)),
+	Price = CAST(@price AS INT),
+	CostToProduce = CAST(@cost AS INT),
 	CategoryID = 
 		(
 			SELECT CC.CategoryID
