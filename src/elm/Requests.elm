@@ -227,7 +227,7 @@ getCardsSoldByCategory hook =
 
 createOrder : Int -> (Result String String -> msg) -> Cmd msg
 createOrder userId hook =
-    Http.post (fullPath ++ "users/" ++ toString userId) Http.emptyBody JD.string
+    Http.post (fullPath ++ "orders/" ++ toString userId) Http.emptyBody JD.string
         |> Http.send (processResult hook)
 
 
