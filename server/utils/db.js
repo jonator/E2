@@ -163,7 +163,7 @@ const getCartItemsByUser = async userId => {
   if (cartItems.length === 0) {
     return null
   }
-  const newCartItems = cartItems.map(function (a) {
+  const newCartItems = cartItems.map(function(a) {
     delete a.userId
     return a
   })
