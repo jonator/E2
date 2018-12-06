@@ -2,6 +2,7 @@ const db = require('../utils/db')
 const knex = require('../knex')
 // get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
+const toInt = string => parseInt(string, 10)
 
 exports.getUser = async (req, res) => {
   const userAndCart = await db.getUser(intId(req, 'userId'))
@@ -93,7 +94,7 @@ const formatCartItemSimple = cartItem => ({
 exports.createCartItem = async (req, res) => {
   const { userId, cardId, quantity } = req.body
   const dirtyCartItem = await knex.exec(
-    `addToCart @UserID = '${userId}', @CardID = '${cardId}', @Quantity = '${quantity}'`
+    `addToCart @UserID = '${userId}', @CardID = '${cardId}', @Quantity = ${toInt(quantity)}`
   )
   if (!dirtyCartItem[0]) {
     return res.status(404).send('User not found')
@@ -106,7 +107,7 @@ exports.createCartItem = async (req, res) => {
 exports.updateCartItem = async (req, res) => {
   const { userId, cardId, quantity } = req.body
   const dirtyCartItem = await knex.exec(
-    `updateCartItem @UserID = '${userId}', @CardID = '${cardId}', @Quantity = '${quantity}'`
+    `updateCartItem @UserID = '${userId}', @CardID = '${cardId}', @Quantity = ${toInt(quantity)}`
   )
   if (!dirtyCartItem[0]) {
     return res.status(404).send('User or Card not found')
