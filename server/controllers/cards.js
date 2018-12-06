@@ -18,9 +18,9 @@ exports.createCard = async (req, res) => {
   // const newCard = await db.insertCard(req.body)
   const { title, imageUrl, price, costToProduce, category } = req.body
   const dirtyCard = await knex.exec(
-    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = '${toInt(price)}' , @cost = '${toInt(
+    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = ${toInt(price)} , @cost = ${toInt(
       costToProduce
-    )}' , @category = '${category}'`
+    )} , @category = '${category}'`
   )
   const newCard = formatCard(dirtyCard[0])
   if (newCard) {
@@ -42,9 +42,9 @@ exports.getCards = async (req, res) => {
 exports.updateCard = async (req, res) => {
   const { cardId, title, imageUrl, price, costToProduce, category } = req.body
   const dirtyCard = await knex.exec(
-    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = '${imageUrl}' , @price = '${toInt(
+    `updateCard @CardID = ${toInt(cardId)} , @title = '${title}' , @url = '${imageUrl}' , @price = ${toInt(
       price
-    )}' , @cost = '${toInt(costToProduce)}' , @category = '${category}'`
+    )}, @cost = ${toInt(costToProduce)} , @category = '${category}'`
   )
   const newCard = formatCard(dirtyCard[0])
   // const newCard = await db.updateCard(req.body)

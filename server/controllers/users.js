@@ -94,7 +94,7 @@ const formatCartItemSimple = cartItem => ({
 exports.createCartItem = async (req, res) => {
   const { userId, cardId, quantity } = req.body
   const dirtyCartItem = await knex.exec(
-    `addToCart @UserID = '${userId}', @CardID = '${cardId}', @Quantity = '${toInt(quantity)}'`
+    `addToCart @UserID = '${userId}', @CardID = '${cardId}', @Quantity = ${toInt(quantity)}`
   )
   if (!dirtyCartItem[0]) {
     return res.status(404).send('User not found')
@@ -107,7 +107,7 @@ exports.createCartItem = async (req, res) => {
 exports.updateCartItem = async (req, res) => {
   const { userId, cardId, quantity } = req.body
   const dirtyCartItem = await knex.exec(
-    `updateCartItem @UserID = '${userId}', @CardID = '${cardId}', @Quantity = '${toInt(quantity)}'`
+    `updateCartItem @UserID = '${userId}', @CardID = '${cardId}', @Quantity = ${toInt(quantity)}`
   )
   if (!dirtyCartItem[0]) {
     return res.status(404).send('User or Card not found')
