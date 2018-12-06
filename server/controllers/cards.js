@@ -57,10 +57,10 @@ exports.updateCard = async (req, res) => {
 exports.deleteCard = async (req, res) => {
   const deletedCardId = await knex.exec(`deleteCard @CardID = '${intId(req, 'cardId')}'`)
   // const deletedCard = await db.deleteCard(intId(req, 'cardId'))
-  if (deletedCardId[0]) {
-    return res.send()
+  if (deletedCardId[0].CardID) {
+    return res.send('deleted')
   }
-  return res.status(404).send()
+  return res.status(404).send('Card not found')
 }
 
 exports.getCard = async (req, res) => {
@@ -70,7 +70,7 @@ exports.getCard = async (req, res) => {
   if (card) {
     return res.json(card)
   }
-  return res.status(404).send()
+  return res.status(404).send('Card not found')
 }
 
 exports.getCategories = async (req, res) => {
