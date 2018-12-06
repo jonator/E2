@@ -254,7 +254,8 @@ VALUES
 		('Janet','Kehr','janet@gmail.com',0,'lE`QpsIHe'),
 		('Cher','Benfield','cher@gmail.com',0,'acxtwHMsa'),
 		('Kimberley','Koenig','kimberley@gmail.com',0,'bI_XcTzvk'),
-		('Dann','Knaub','dann@gmail.com',0,'NptqR`FUY');
+		('Dann','Knaub','dann@gmail.com',0,'NptqR`FUY'),
+		('admin','super','a',1,'a');
 
 SELECT *
 FROM Project.[User]
