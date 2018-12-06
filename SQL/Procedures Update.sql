@@ -7,8 +7,8 @@ VALUES
     (
         @title,
         @url,
-        CAST(@price AS INT),
-        CAST(@cost AS INT),
+        CAST(@price * 100 AS INT),
+        CAST(@cost * 100 AS INT),
         (
             SELECT CC.CategoryID
             FROM Project.CardCategory CC
@@ -31,8 +31,8 @@ AS
 UPDATE Project.Card
 SET Title = @title,
 	ImageURL = @url,
-	Price = CAST(@price AS INT),
-	CostToProduce = CAST(@cost AS INT),
+	Price = CAST(@price * 100 AS INT),
+	CostToProduce = CAST(@cost * 100 AS INT),
 	CategoryID = 
 		(
 			SELECT CC.CategoryID
@@ -137,7 +137,7 @@ WHERE CI.UserID = @UserID;
 
 EXEC removeAllFromCart @UserID;
 
-SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity, O.OrderDate
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100, CC.Category, OL.Quantity, O.OrderDate
 FROM Project.[Order] O
 	INNER JOIN Project.[User] U ON U.UserID = O.UserID
 	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
@@ -156,7 +156,7 @@ GO
 
 ALTER PROCEDURE getAllOrders
 AS
-SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce, CC.Category, OL.Quantity, O.OrderDate
+SELECT O.OrderID, U.UserID, U.FirstName, U.LastName, U.Email, U.IsAdmin, OL.OrderLineID, C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100, CC.Category, OL.Quantity, O.OrderDate
 FROM Project.[Order] O
 	INNER JOIN Project.[User] U ON U.UserID = O.UserID
 	INNER JOIN Project.OrderLines OL ON OL.OrderID = O.OrderID
@@ -197,7 +197,7 @@ GO
 
 ALTER PROCEDURE getAllCards
 AS
-SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+SELECT C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100,
 	(
 		SELECT CC.Category
 		FROM Project.CardCategory CC
