@@ -64,12 +64,6 @@ getCards hook =
         |> Http.send (processResult hook)
 
 
-getCard : Int -> (Result String Card -> msg) -> Cmd msg
-getCard userId hook =
-    Http.get (fullPath ++ "cards/" ++ toString userId) Coders.decodeCard
-        |> Http.send (processResult hook)
-
-
 createCard : String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
 createCard title imageUrl cost costToProduce category hook =
     Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category) JD.string
