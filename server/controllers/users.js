@@ -3,6 +3,7 @@ const knex = require('../knex')
 // get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
 const toInt = string => parseInt(string, 10)
+const decodeImage = url => url.replace('AlexLovesBrianna', '?')
 
 exports.getUser = async (req, res) => {
   const userAndCart = await db.getUser(intId(req, 'userId'))
@@ -62,9 +63,9 @@ const formatCartItem = cartItem => ({
   card: {
     cardId: cartItem.CardID,
     title: cartItem.Title,
-    imageUrl: cartItem.ImageURL,
-    price: cartItem.Price / 100,
-    costToProduce: (cartItem.CostToProduce / 100) * 2,
+    imageUrl: decodeImage(cartItem.ImageURL),
+    price: cartItem.Price,
+    costToProduce: cartItem.CostToProduce,
     category: cartItem.Category,
   },
   quantity: cartItem.Quantity,

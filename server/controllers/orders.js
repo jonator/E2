@@ -2,6 +2,7 @@ const db = require('../utils/db')
 const knex = require('../knex')
 
 const intId = (req, property) => parseInt(req.params[property], 10)
+const decodeImage = url => url.replace('AlexLovesBrianna', '?')
 
 const formatUser = user => ({
   userId: user.UserID,
@@ -14,9 +15,9 @@ const formatUser = user => ({
 const formatCard = card => ({
   cardId: card.CardID,
   title: card.Title,
-  imageUrl: card.ImageURL,
-  price: card.Price / 100,
-  costToProduce: (card.CostToProduce / 100) * 2,
+  imageUrl: decodeImage(card.ImageURL),
+  price: card.Price,
+  costToProduce: card.CostToProduce,
   category: card.Category,
 })
 
@@ -83,7 +84,7 @@ exports.getOrder = async (req, res) => {
 exports.getTotalSales = async (req, res) => {
   const totalSales = (await knex.exec('totalSales'))[0]
   if (totalSales) {
-    const dollars = totalSales / 100
+    const dollars = totalSales
     return res.json(dollars)
   }
   res.status(404).send()
@@ -92,7 +93,7 @@ exports.getTotalSales = async (req, res) => {
 exports.getTotalProfit = async (req, res) => {
   const totalProfit = (await knex.exec('totalProfit'))[0]
   if (totalProfit) {
-    const dollars = totalProfit / 100
+    const dollars = totalProfit
     return res.json(dollars)
   }
   res.status(404).send()
@@ -114,10 +115,10 @@ exports.getCardsSoldByCategory = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
   const dirtyOrders = await knex.exec(`createOrder @UserId = ${intId(req, 'userId')}`)
-  const order = formatDIRTYOrders(dirtyOrders)
+  const order = formatDIRTYOrders(dirtyOrders)[0]
   // const order = await db.createOrder(intId(req, 'userId'))
   if (order) {
     return res.json(order)
   }
-  return res.status(404).send('User not found or user has no cart items')
+  return res.status(400).send('User has no cart items')
 }

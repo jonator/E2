@@ -1,8 +1,37 @@
-module Requests exposing (..)
+module Requests
+    exposing
+        ( apiPath
+        , authenticateUser
+        , authority
+        , createCard
+        , createCartItem
+        , createOrder
+        , createUser
+        , deleteCard
+        , deleteCartItem
+        , deleteRequest
+        , fullPath
+        , getAllOrders
+        , getCards
+        , getCardsSoldByCategory
+        , getCartItems
+        , getTotalProfit
+        , getTotalSales
+        , httpErrToString
+        , processCartItemResult
+        , processOrderListResult
+        , processResult
+        , processUpdateCartItem
+        , processUserResult
+        , putRequest
+        , registerUser
+        , updateCard
+        , updateCartItem
+        )
 
 import Coders exposing (..)
+import Http exposing (Body, Error(..), Request, emptyBody, expectJson, expectString, jsonBody, request)
 import Json.Decode as JD exposing (Decoder, field)
-import Http exposing (Error(..), emptyBody, jsonBody, Request, Body, request, expectString, expectJson)
 import Types exposing (..)
 
 
@@ -64,27 +93,21 @@ getCards hook =
         |> Http.send (processResult hook)
 
 
-getCard : Int -> (Result String Card -> msg) -> Cmd msg
-getCard userId hook =
-    Http.get (fullPath ++ "cards/" ++ (toString userId)) Coders.decodeCard
-        |> Http.send (processResult hook)
-
-
 createCard : String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
-createCard title imageUrl cost costToProduce category hook =
-    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl cost costToProduce category) JD.string
+createCard title imageUrl price costToProduce category hook =
+    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl (price * 100) (costToProduce * 100) category) JD.string
         |> Http.send (processResult hook)
 
 
 updateCard : Card -> (Result String String -> msg) -> Cmd msg
 updateCard c hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard c.cardId c.title c.imageUrl c.price c.costToProduce c.category) JD.string
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard c.cardId c.title c.imageUrl (c.price * 100) c.costToProduce c.category) JD.string
         |> Http.send (processResult hook)
 
 
 deleteCard : Int -> (Result String String -> msg) -> Cmd msg
 deleteCard cardId hook =
-    deleteRequest (fullPath ++ "cards/" ++ (toString cardId))
+    deleteRequest (fullPath ++ "cards/" ++ toString cardId)
         |> Http.send (processResult hook)
 
 
@@ -120,7 +143,7 @@ processUserResult message res =
 
 getCartItems : Int -> (Result String (List (CartItem Card)) -> msg) -> Cmd msg
 getCartItems userId hook =
-    Http.get (fullPath ++ "users/cartItems/" ++ (toString userId)) Coders.decodeCartItemList
+    Http.get (fullPath ++ "users/cartItems/" ++ toString userId) Coders.decodeCartItemList
         |> Http.send (processCartItemResult hook)
 
 
@@ -136,7 +159,7 @@ processCartItemResult message res =
 
 deleteCartItem : Int -> Int -> (Result String String -> msg) -> Cmd msg
 deleteCartItem userId cardId hook =
-    deleteRequest (fullPath ++ "users/cartItems/" ++ (toString userId) ++ "/" ++ (toString cardId))
+    deleteRequest (fullPath ++ "users/cartItems/" ++ toString userId ++ "/" ++ toString cardId)
         |> Http.send (processResult hook)
 
 
@@ -203,10 +226,20 @@ getCardsSoldByCategory hook =
     Http.send (processResult hook) <| Http.get (fullPath ++ "orders/cardsSoldByCategory") decodeCardsSoldByCategory
 
 
-createOrder : String -> (Result String String -> msg) -> Cmd msg
+createOrder : Int -> (Result String String -> msg) -> Cmd msg
 createOrder userId hook =
-    Http.post (fullPath ++ "users/" ++ (toString userId)) Http.emptyBody JD.string
-        |> Http.send (processResult hook)
+    Http.post (fullPath ++ "orders/" ++ toString userId) Http.emptyBody JD.value
+        |> Http.send (processValue hook)
+
+
+processValue : (Result String String -> msg) -> Result Http.Error JD.Value -> msg
+processValue message res =
+    case res of
+        Ok _ ->
+            message <| Ok "ok"
+
+        Err httpError ->
+            message <| Err <| httpErrToString httpError
 
 
 
