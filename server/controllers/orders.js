@@ -15,8 +15,8 @@ const formatCard = card => ({
   cardId: card.CardID,
   title: card.Title,
   imageUrl: card.ImageURL,
-  price: card.Price / 100,
-  costToProduce: (card.CostToProduce / 100) * 2,
+  price: card.Price,
+  costToProduce: card.CostToProduce,
   category: card.Category,
 })
 
@@ -83,7 +83,7 @@ exports.getOrder = async (req, res) => {
 exports.getTotalSales = async (req, res) => {
   const totalSales = (await knex.exec('totalSales'))[0]
   if (totalSales) {
-    const dollars = totalSales / 100
+    const dollars = totalSales
     return res.json(dollars)
   }
   res.status(404).send()
@@ -92,7 +92,7 @@ exports.getTotalSales = async (req, res) => {
 exports.getTotalProfit = async (req, res) => {
   const totalProfit = (await knex.exec('totalProfit'))[0]
   if (totalProfit) {
-    const dollars = totalProfit / 100
+    const dollars = totalProfit
     return res.json(dollars)
   }
   res.status(404).send()

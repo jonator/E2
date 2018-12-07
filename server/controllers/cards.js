@@ -8,8 +8,8 @@ const formatCard = card => ({
   cardId: card.CardID,
   title: card.Title,
   imageUrl: card.ImageURL,
-  price: card.Price / 100,
-  costToProduce: (card.CostToProduce / 100) * 2,
+  price: card.Price,
+  costToProduce: card.CostToProduce,
   category: card.Category,
 })
 
@@ -17,8 +17,7 @@ exports.createCard = async (req, res) => {
   // const newCard = await db.insertCard(req.body)
   const { title, imageUrl, price, costToProduce, category } = req.body
   const dirtyCard = await knex.exec(
-    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = ${price * 100} , @cost = ${(costToProduce * 100) /
-      2} , @category = '${category}'`
+    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = ${price} , @cost = ${costToProduce} , @category = '${category}'`
   )
   if (!dirtyCard[0]) {
     return res.status(404).send()
@@ -37,8 +36,7 @@ exports.getCards = async (req, res) => {
 exports.updateCard = async (req, res) => {
   const { cardId, title, imageUrl, price, costToProduce, category } = req.body
   const dirtyCard = await knex.exec(
-    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = '${imageUrl}' , @price = ${price *
-      100}, @cost = ${(costToProduce * 100) / 2} , @category = '${category}'`
+    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = '${imageUrl}' , @price = ${price}, @cost = ${costToProduce} , @category = '${category}'`
   )
   if (!dirtyCard[0]) {
     return res.status(404).send('Card not found')
