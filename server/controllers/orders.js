@@ -114,10 +114,10 @@ exports.getCardsSoldByCategory = async (req, res) => {
 
 exports.createOrder = async (req, res) => {
   const dirtyOrders = await knex.exec(`createOrder @UserId = ${intId(req, 'userId')}`)
-  const order = formatDIRTYOrders(dirtyOrders)
+  const order = formatDIRTYOrders(dirtyOrders)[0]
   // const order = await db.createOrder(intId(req, 'userId'))
   if (order) {
     return res.json(order)
   }
-  return res.status(404).send('User not found or user has no cart items')
+  return res.status(400).send('User has no cart items')
 }
