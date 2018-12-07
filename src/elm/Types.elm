@@ -1,4 +1,21 @@
-module Types exposing (..)
+module Types exposing
+    ( AuthMsg(..)
+    , Card
+    , CardId
+    , CardsSoldByCategory
+    , CartItem
+    , Collapsible
+    , CreateCardModel
+    , Model
+    , Msg(..)
+    , Order
+    , OrderCount
+    , OrderLine
+    , Page(..)
+    , TotalProfit
+    , TotalSales
+    , User
+    )
 
 import Dict exposing (Dict)
 import SignIn
@@ -29,10 +46,10 @@ type alias CardsSoldByCategory =
 type Page
     = Loading
     | SignIn SignIn.Model
-    | Homepage (List Card)
+    | Homepage (List Card) CreateCardModel
     | CardView Card
     | CartView
-    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit
+    | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit (List CardsSoldByCategory)
     | DeleteCardView CardId
 
 
@@ -43,6 +60,15 @@ type alias Card =
     , price : Int
     , costToProduce : Int
     , category : String
+    }
+
+
+type alias CreateCardModel =
+    { title : String
+    , price : String
+    , costToProduce : String
+    , category : String
+    , imgUrl : String
     }
 
 
@@ -62,14 +88,6 @@ type alias OrderCount =
 
 type alias TotalProfit =
     Int
-
-
-type alias FirstName =
-    String
-
-
-type alias LastName =
-    String
 
 
 type alias CardId =
@@ -124,6 +142,8 @@ type AuthMsg
     | HandleGetAllOrders (Result String (List Order))
     | HandleGetTotalSales (Result String Int)
     | HandleGetTotalProfit (Result String Int)
+    | HandleGetCardsSoldByCategory (Result String (List CardsSoldByCategory))
+    | HandleCreateOrder (Result String String)
     | ClickAddToCart Card
     | ClickCart
     | ClickSignOut
@@ -135,6 +155,12 @@ type AuthMsg
     | TypeEditCardPrice Card String
     | TypeEditCardCategory Card String
     | TypeEditCardImgUrl Card String
+    | TypeEditNewCardTitle String
+    | TypeEditNewCardPrice String
+    | TypeEditNewCardCostToProduce String
+    | TypeEditNewCardCategory String
+    | TypeEditNewCardImgUrl String
     | ClickUpdateCard Card
     | ClickDeleteCard Card
     | ClickToggleOrderCollapsed Order
+    | ClickPurchaseCart

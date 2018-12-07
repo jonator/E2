@@ -4,8 +4,8 @@ import Dict
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events exposing (..)
-import Types exposing (..)
 import SignIn
+import Types exposing (..)
 
 
 view : Model -> Html Msg
@@ -27,14 +27,14 @@ content model =
                         CartView ->
                             cart <| List.map Tuple.second <| Dict.toList user.cart
 
-                        Homepage cardList ->
-                            homepage user.isAdmin cardList
+                        Homepage cardList createCardModel ->
+                            homepage user.isAdmin cardList createCardModel
 
                         CardView c ->
                             cardView c
 
-                        AdminPage totalSales orderCount orderList totalProfit ->
-                            adminPage totalSales orderCount orderList totalProfit
+                        AdminPage totalSales orderCount orderList totalProfit cardsSoldByCategory ->
+                            adminPage totalSales orderCount orderList totalProfit cardsSoldByCategory
 
                         Loading ->
                             loading
@@ -44,8 +44,8 @@ content model =
 
                 Nothing ->
                     case model.page of
-                        Homepage cardList ->
-                            homepage False cardList
+                        Homepage cardList createCardModel ->
+                            homepage False cardList createCardModel
 
                         CardView c ->
                             cardView c
@@ -59,9 +59,9 @@ content model =
                         _ ->
                             div [] [ text "Must be authenticated to view this page!" ]
     in
-        [ head
-        , div [ Attrs.class "content" ] [ content ]
-        ]
+    [ head
+    , div [ Attrs.class "content" ] [ content ]
+    ]
 
 
 header : Model -> Html Msg
@@ -85,12 +85,14 @@ header model =
                                     ]
                                     [ text "MyStore" ]
                                 ]
+
                             else
                                 []
 
                         cartButton =
                             if user.isAdmin then
                                 div [] []
+
                             else
                                 div
                                     [ Attrs.class "cart button"
@@ -98,35 +100,81 @@ header model =
                                     ]
                                     [ text ("Cart [" ++ cartCount ++ "]") ]
                     in
-                        ([ div [ Attrs.class "user-email" ]
-                            [ text user.email ]
-                         , cartButton
-                         , div
-                            [ Attrs.class "sign-out button"
-                            , onClick <| AuthenticatedMsgs <| ClickSignOut
-                            ]
-                            [ text "Sign out" ]
-                         ]
-                            ++ adminButton
-                        )
+                    [ div [ Attrs.class "user-email" ]
+                        [ text user.email ]
+                    , cartButton
+                    , div
+                        [ Attrs.class "sign-out button"
+                        , onClick <| AuthenticatedMsgs <| ClickSignOut
+                        ]
+                        [ text "Sign out" ]
+                    ]
+                        ++ adminButton
 
                 Nothing ->
                     [ div [ Attrs.class "sign-in button", onClick ClickSignIn ]
                         [ text "Sign in" ]
                     ]
     in
-        div [ Attrs.class "header" ]
-            ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
-                [ text "Cheeky Beak Card Company" ]
-             ]
-                ++ userControls
-            )
+    div [ Attrs.class "header" ]
+        ([ div [ Attrs.class "title-text", onClick ClickTitleText ]
+            [ text "Cheeky Beak Card Company" ]
+         ]
+            ++ userControls
+        )
 
 
-homepage : Bool -> List Card -> Html Msg
-homepage isAdmin cardList =
+homepage : Bool -> List Card -> CreateCardModel -> Html Msg
+homepage isAdmin cardList createCardModel =
+    let
+        createCardPrompt =
+            if isAdmin then
+                [ div [ Attrs.class "new-card" ]
+                    [ text "Create new card:" ]
+                , input
+                    [ Attrs.class "title input"
+                    , Attrs.placeholder "title"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardTitle
+                    ]
+                    []
+                , input
+                    [ Attrs.class "price input"
+                    , Attrs.placeholder "Price"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardPrice
+                    ]
+                    []
+                , input
+                    [ Attrs.class "cost-to-produce input"
+                    , Attrs.placeholder "Cost to produce"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardCostToProduce
+                    ]
+                    []
+                , input
+                    [ Attrs.class "category input"
+                    , Attrs.placeholder "category"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardCategory
+                    ]
+                    []
+                , input
+                    [ Attrs.class "image-input"
+                    , Attrs.placeholder "image url"
+                    , onInput <| AuthenticatedMsgs << TypeEditNewCardImgUrl
+                    ]
+                    []
+                , div
+                    [ Attrs.class "create-card button"
+                    , onClick <| AuthenticatedMsgs <| ClickCreateCard
+                    ]
+                    [ text "Create new card" ]
+                ]
+
+            else
+                []
+    in
     div [ Attrs.class "cards" ] <|
-        List.map (card isAdmin) cardList
+        (createCardPrompt
+            ++ List.map (card isAdmin) cardList
+        )
 
 
 cardView : Card -> Html Msg
@@ -156,7 +204,7 @@ card isAdmin c =
         div [ Attrs.class "card" ]
             [ div [ Attrs.class "info" ]
                 [ div [ Attrs.class "id" ]
-                    [ text <| toString c.cardId ]
+                    [ text <| String.append "ID: " <| toString c.cardId ]
                 , input
                     [ Attrs.class "title input"
                     , Attrs.placeholder c.title
@@ -189,17 +237,16 @@ card isAdmin c =
             , div [ Attrs.class "delete-card button", onClick <| AuthenticatedMsgs <| ClickDeleteCard c ]
                 [ text "Delete" ]
             ]
+
     else
         div [ Attrs.class "card", onClick <| ClickCard c ]
             [ div [ Attrs.class "info" ]
-                [ div [ Attrs.class "id" ]
-                    [ text <| toString c.cardId ]
-                , div [ Attrs.class "title" ]
-                    [ text c.title ]
+                [ div [ Attrs.class "title" ]
+                    [ text <| String.append "Title: " <| c.title ]
                 , div [ Attrs.class "price" ]
-                    [ text <| String.append "$" <| toString c.price ]
+                    [ text <| String.append "Price: $" <| toString c.price ]
                 , div [ Attrs.class "category" ]
-                    [ text c.category ]
+                    [ text <| String.append "Category: " <| c.category ]
                 ]
             , div [ Attrs.class "image" ]
                 [ img [ Attrs.src c.imageUrl ] [] ]
@@ -217,10 +264,15 @@ addToCartBtn m =
 
 cart : List (CartItem Card) -> Html Msg
 cart cardList =
-    div [ Attrs.class "cart" ] <|
-        List.map
-            cartItem
-            cardList
+    div [ Attrs.class "cart" ]
+        [ div [ Attrs.class "items" ] <|
+            List.map cartItem cardList
+        , div
+            [ Attrs.class "create-order button"
+            , onClick <| AuthenticatedMsgs <| ClickPurchaseCart
+            ]
+            [ text "Purchase cart" ]
+        ]
 
 
 cartItem : CartItem Card -> Html Msg
@@ -261,18 +313,19 @@ cartItemQuantity cardId quantity =
         ]
 
 
-adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalProfit -> Html Msg
-adminPage totalSales orderCount orderList totalProfit =
+adminPage : TotalSales -> OrderCount -> List (Collapsible Types.Order) -> TotalProfit -> List CardsSoldByCategory -> Html Msg
+adminPage totalSales orderCount orderList totalProfit cardsSoldByCategory =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
-        , div [ Attrs.class "order-list" ]
-            ([ text "Order(s):" ] ++ List.map order orderList)
         , div [ Attrs.class "total-sales" ]
             [ text <| (++) "Total Sales: $" <| toString totalSales ]
         , div [ Attrs.class "total-profit" ]
             [ text <| (++) "Total Profit: $" <| toString totalProfit ]
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
+        , cardsByCategoryStats cardsSoldByCategory
+        , div [ Attrs.class "order-list" ]
+            ([ text "Order(s):" ] ++ List.map order orderList)
         ]
 
 
@@ -282,15 +335,16 @@ order cOrder =
         c =
             if cOrder.collapsed then
                 []
+
             else
                 List.map orderLine cOrder.item.orderLines
     in
-        div [ Attrs.class "order", onClick <| AuthenticatedMsgs <| ClickToggleOrderCollapsed cOrder.item ]
-            ([ text <| (++) "Order ID: " <| toString cOrder.item.orderId
-             , orderUser cOrder.item.user
-             ]
-                ++ c
-            )
+    div [ Attrs.class "order", onClick <| AuthenticatedMsgs <| ClickToggleOrderCollapsed cOrder.item ]
+        ([ text <| (++) "Order ID: " <| toString cOrder.item.orderId
+         , orderUser cOrder.item.user
+         ]
+            ++ c
+        )
 
 
 orderUser : User -> Html msg
@@ -339,6 +393,27 @@ orderLineCard card =
         ]
 
 
+cardsByCategoryStats : List CardsSoldByCategory -> Html msg
+cardsByCategoryStats catList =
+    div [ Attrs.class "category-stats" ]
+        ([ text "Number of cards sold by category:" ]
+            ++ List.map categoryStat catList
+        )
+
+
+categoryStat : CardsSoldByCategory -> Html msg
+categoryStat cardCat =
+    div [ Attrs.class "card-cat-stat" ]
+        [ div [ Attrs.class "category" ]
+            [ text <| String.append "Category: " cardCat.category ]
+        , div [ Attrs.class "number" ]
+            [ text <|
+                String.append "Quantity: " <|
+                    toString cardCat.quantity
+            ]
+        ]
+
+
 reduceImageSize : String -> String
 reduceImageSize link =
     if String.contains "_" link && String.contains ".jpg" link then
@@ -347,6 +422,7 @@ reduceImageSize link =
                 String.split from str
                     |> String.join to
         in
-            replace "400" "200" link
+        replace "400" "200" link
+
     else
         link

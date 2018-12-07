@@ -79,6 +79,10 @@ body {
     padding: 20px;
     display: grid;
   }
+
+  div {
+    font-size: 20px;
+  }
 }
 
 .card-view {
@@ -99,7 +103,7 @@ input {
 
 .sign-in-wrapper {
   display: inline-flex;
-  width: 100%;
+  width: 70%;
   padding: 20px;
 
 
@@ -129,9 +133,14 @@ input {
   }
 }
 
+.new-card .button {
+  padding-top: 20px;
+}
+
 .admin {
   display: grid;
   grid-template-rows: 20px;
+  padding: 25px 0;
 
   .order-list {
     display: grid;
@@ -167,16 +176,22 @@ input {
   .total-sales {
     padding: 20px;
     font-size: 30px;
-    border-top: 5px solid black;
   }
 
   .order-count {
-    padding-left: 20px;
+    padding: 20px;
+    font-size: 30px;
   }
 
   .total-profit {
     padding: 20px;
     font-size: 30px;
+  }
+
+  .category-stats {
+    display: grid;
+    grid-row-gap: 20px;
+    padding-left: 30px;
   }
 }
 
