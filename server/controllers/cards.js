@@ -22,21 +22,18 @@ exports.createCard = async (req, res) => {
       costToProduce
     )} , @category = '${category}'`
   )
-  const newCard = formatCard(dirtyCard[0])
-  if (newCard) {
-    return res.json(newCard)
+  if (!dirtyCard[0]) {
+    return res.status(404).send()
   }
-  return res.status(404).send()
+  const newCard = formatCard(dirtyCard[0])
+  return res.json(newCard)
 }
 
 exports.getCards = async (req, res) => {
   const dirtyCards = await knex.exec('getAllCards')
   const cards = dirtyCards.map(formatCard)
   // const cards = await db.getCards()
-  if (cards) {
-    return res.json(cards)
-  }
-  return res.status(404).send()
+  return res.json(cards)
 }
 
 exports.updateCard = async (req, res) => {
@@ -46,12 +43,12 @@ exports.updateCard = async (req, res) => {
       price
     )}, @cost = ${toInt(costToProduce)} , @category = '${category}'`
   )
+  if (!dirtyCard[0]) {
+    return res.status(404).send('Card not found')
+  }
   const newCard = formatCard(dirtyCard[0])
   // const newCard = await db.updateCard(req.body)
-  if (newCard) {
-    return res.json(newCard)
-  }
-  return res.status(404).send()
+  return res.json(newCard)
 }
 
 exports.deleteCard = async (req, res) => {
@@ -65,12 +62,12 @@ exports.deleteCard = async (req, res) => {
 
 exports.getCard = async (req, res) => {
   const dirtyCard = await knex.exec(`getSingleCard @CardID = '${intId(req, 'cardId')}'`)
+  if (!dirtyCard[0]) {
+    return res.status(404).send('Card not found')
+  }
   const card = formatCard(dirtyCard[0])
   // const card = await db.getCard(intId(req, 'cardId'))
-  if (card) {
-    return res.json(card)
-  }
-  return res.status(404).send('Card not found')
+  return res.json(card)
 }
 
 exports.getCategories = async (req, res) => {
@@ -79,5 +76,4 @@ exports.getCategories = async (req, res) => {
   if (categories) {
     return res.json(categories)
   }
-  return res.status(404).send()
 }
