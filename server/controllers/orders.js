@@ -83,7 +83,8 @@ exports.getOrder = async (req, res) => {
 exports.getTotalSales = async (req, res) => {
   const totalSales = (await knex.exec('totalSales'))[0]
   if (totalSales) {
-    return res.json(totalSales)
+    const dollars = totalSales
+    return res.json(dollars)
   }
   res.status(404).send()
 }
@@ -91,7 +92,8 @@ exports.getTotalSales = async (req, res) => {
 exports.getTotalProfit = async (req, res) => {
   const totalProfit = (await knex.exec('totalProfit'))[0]
   if (totalProfit) {
-    return res.json(totalProfit)
+    const dollars = totalProfit
+    return res.json(dollars)
   }
   res.status(404).send()
 }
