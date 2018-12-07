@@ -131,31 +131,31 @@ homepage isAdmin cardList createCardModel =
                     [ text "Create new card:" ]
                 , input
                     [ Attrs.class "title input"
-                    , Attrs.placeholder "title"
+                    , Attrs.placeholder "Title"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardTitle
                     ]
                     []
                 , input
                     [ Attrs.class "price input"
-                    , Attrs.placeholder "Price (cents)"
+                    , Attrs.placeholder "Price in dollars"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardPrice
                     ]
                     []
                 , input
                     [ Attrs.class "cost-to-produce input"
-                    , Attrs.placeholder "Cost to produce"
+                    , Attrs.placeholder "Cost to produce in dollars"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardCostToProduce
                     ]
                     []
                 , input
                     [ Attrs.class "category input"
-                    , Attrs.placeholder "category"
+                    , Attrs.placeholder "Category"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardCategory
                     ]
                     []
                 , input
                     [ Attrs.class "image-input"
-                    , Attrs.placeholder "image url"
+                    , Attrs.placeholder "Image url"
                     , onInput <| AuthenticatedMsgs << TypeEditNewCardImgUrl
                     ]
                     []

@@ -94,7 +94,7 @@ getCards hook =
 
 createCard : String -> String -> Int -> Int -> String -> (Result String String -> msg) -> Cmd msg
 createCard title imageUrl price costToProduce category hook =
-    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl price costToProduce category) JD.string
+    Http.post (fullPath ++ "cards/") (jsonBody <| encodeNewCard title imageUrl (price * 100) (costToProduce * 100) category) JD.string
         |> Http.send (processResult hook)
 
 
