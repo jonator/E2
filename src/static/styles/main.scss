@@ -83,6 +83,10 @@ body {
   div {
     font-size: 20px;
   }
+
+  &:hover {
+    background: lighten($color: lightblue, $amount: 40);
+  }
 }
 
 .card-view {
