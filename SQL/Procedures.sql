@@ -2,38 +2,38 @@ CREATE PROCEDURE getAllCards
 AS
 SELECT * 
 FROM Project.Card
-GO;
+GO
 
 CREATE PROCEDURE getSingleCard @Card nvarchar(30)
 AS
 SELECT * 
 FROM Project.Card
 WHERE Title = @Card
-GO;
+GO
 
 CREATE PROCEDURE getCart @User nvarchar(30)
 AS
 SELECT * 
 FROM Project.CartItems
 WHERE UserID = @User
-GO;
+GO
 
 CREATE PROCEDURE removeAllFromCart @User INT
 AS
 DELETE 
 FROM Project.CartItems
 WHERE UserID = @User
-GO;
+GO
 
 CREATE PROCEDURE removeFromCart @User INT, @Card INT
 AS
 DELETE 
 FROM Project.CartItems
 WHERE UserID = @User AND CardID = @Card
-GO;
+GO
 
 CREATE PROCEDURE getOrders
 AS
 SELECT * 
 FROM Project.[Order]
-GO;
+GO

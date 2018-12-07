@@ -46,9 +46,10 @@ exports.createUser = async (req, res) => {
       `createUser @FN = '${firstName}', @LN = '${lastName}', @Email = '${email}', @Password = '${password}'`
     )
     if (!dirtyUser[0]) {
-      return res.json(createdUser)
+      return res.status(500).send()
     }
     const createdUser = formatUser(dirtyUser[0])
+    return res.json(createdUser)
     // const createdUser = await db.insertUser(req.body)
   } catch (err) {
     if (err.originalError.info.message.indexOf('Violation of UNIQUE KEY constraint') > -1) {
@@ -62,8 +63,8 @@ const formatCartItem = cartItem => ({
     cardId: cartItem.CardID,
     title: cartItem.Title,
     imageUrl: cartItem.ImageURL,
-    price: cartItem.Price,
-    costToProduce: cartItem.CostToProduce,
+    price: cartItem.Price / 100,
+    costToProduce: (cartItem.CostToProduce / 100) * 2,
     category: cartItem.Category,
   },
   quantity: cartItem.Quantity,
