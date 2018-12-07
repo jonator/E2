@@ -396,7 +396,7 @@ update msg model =
                                 CardView card quantity ->
                                     case String.toInt str of
                                         Ok val ->
-                                            if val >= 0 then
+                                            if val > 0 then
                                                 { model | page = CardView card val } ! []
                                             else
                                                 ignoreOtherCases model
