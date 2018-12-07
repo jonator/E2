@@ -1,21 +1,23 @@
-module Types exposing
-    ( AuthMsg(..)
-    , Card
-    , CardId
-    , CardsSoldByCategory
-    , CartItem
-    , Collapsible
-    , CreateCardModel
-    , Model
-    , Msg(..)
-    , Order
-    , OrderCount
-    , OrderLine
-    , Page(..)
-    , TotalProfit
-    , TotalSales
-    , User
-    )
+module Types
+    exposing
+        ( AuthMsg(..)
+        , Card
+        , Quantity
+        , CardId
+        , CardsSoldByCategory
+        , CartItem
+        , Collapsible
+        , CreateCardModel
+        , Model
+        , Msg(..)
+        , Order
+        , OrderCount
+        , OrderLine
+        , Page(..)
+        , TotalProfit
+        , TotalSales
+        , User
+        )
 
 import Dict exposing (Dict)
 import SignIn
@@ -47,7 +49,7 @@ type Page
     = Loading
     | SignIn SignIn.Model
     | Homepage (List Card) CreateCardModel
-    | CardView Card
+    | CardView Card Quantity
     | CartView
     | AdminPage TotalSales OrderCount (List (Collapsible Order)) TotalProfit (List CardsSoldByCategory)
     | DeleteCardView CardId
@@ -91,6 +93,10 @@ type alias TotalProfit =
 
 
 type alias CardId =
+    Int
+
+
+type alias Quantity =
     Int
 
 
@@ -144,9 +150,10 @@ type AuthMsg
     | HandleGetTotalProfit (Result String Int)
     | HandleGetCardsSoldByCategory (Result String (List CardsSoldByCategory))
     | HandleCreateOrder (Result String String)
-    | ClickAddToCart Card
+    | ClickAddToCart
     | ClickCart
     | ClickSignOut
+    | ClickChangeCardViewCardQuantity String
     | CartCardQuantityChange CardId String
     | ClickMyStore
     | ClickCreateCard

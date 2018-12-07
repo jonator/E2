@@ -46,7 +46,7 @@ update msg model =
                                 newSiModel =
                                     { siModel | validReg = False }
                             in
-                            { model | page = SignIn newSiModel } ! []
+                                { model | page = SignIn newSiModel } ! []
 
                         _ ->
                             ignoreOtherCases model
@@ -66,13 +66,13 @@ update msg model =
                                 newSiModel =
                                     { siModel | validAuth = False }
                             in
-                            { model | page = SignIn newSiModel } ! []
+                                { model | page = SignIn newSiModel } ! []
 
                         _ ->
                             ignoreOtherCases model
 
         ClickCard card ->
-            { model | page = CardView card } ! []
+            { model | page = CardView card 1 } ! []
 
         ClickBackToCards ->
             { model | page = Loading } ! [ getCards HandleCards ]
@@ -98,7 +98,7 @@ update msg model =
                                 newSIModel =
                                     SignIn.update siMsg oldModel
                             in
-                            { model | page = SignIn newSIModel } ! []
+                                { model | page = SignIn newSIModel } ! []
 
                 _ ->
                     ignoreOtherCases model
@@ -117,7 +117,7 @@ update msg model =
                                         newUser =
                                             { user | cart = Dict.fromList newCart }
                                     in
-                                    { model | user = Just newUser } ! []
+                                        { model | user = Just newUser } ! []
 
                                 Err _ ->
                                     ignoreOtherCases model
@@ -208,8 +208,16 @@ update msg model =
                                 Err _ ->
                                     ignoreOtherCases model
 
-                        ClickAddToCart card ->
-                            model ! [ createCartItem user.userId card.cardId 1 <| AuthenticatedMsgs << HandleCreateCartItem ]
+                        ClickAddToCart ->
+                            case model.page of
+                                CardView card quantity ->
+                                    model
+                                        ! [ createCartItem user.userId card.cardId quantity <| AuthenticatedMsgs << HandleCreateCartItem
+                                          , getCards HandleCards
+                                          ]
+
+                                _ ->
+                                    ignoreOtherCases model
 
                         ClickCart ->
                             { model | page = CartView } ! []
@@ -222,19 +230,15 @@ update msg model =
                                 Ok quant ->
                                     if quant > 0 then
                                         model ! [ updateCartItem user.userId cardId quant <| AuthenticatedMsgs << HandleUpdateCartItem ]
-
                                     else
                                         model ! [ deleteCartItem user.userId cardId <| AuthenticatedMsgs << HandleDeleteCartItem ]
 
-                                --api to update cart item to val
                                 Err _ ->
                                     ignoreOtherCases model
 
                         ClickMyStore ->
-                            --get adminpage api calls, switch page to loading
                             if user.isAdmin then
                                 { model | page = Loading } ! [ getAllOrders <| AuthenticatedMsgs << HandleGetAllOrders ]
-
                             else
                                 ignoreOtherCases model
 
@@ -252,7 +256,7 @@ update msg model =
                                                 Err err ->
                                                     Cmd.none
                                     in
-                                    ( model, cmd )
+                                        ( model, cmd )
 
                                 _ ->
                                     ignoreOtherCases model
@@ -304,11 +308,10 @@ update msg model =
                                         updateTitle c =
                                             if c.cardId == card.cardId then
                                                 { c | title = str }
-
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateTitle cardList) createCardModel } ! []
+                                        { model | page = Homepage (List.map updateTitle cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -325,11 +328,10 @@ update msg model =
 
                                                     Err _ ->
                                                         c
-
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updatePrice cardList) createCardModel } ! []
+                                        { model | page = Homepage (List.map updatePrice cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -341,11 +343,10 @@ update msg model =
                                         updateCat c =
                                             if c.cardId == card.cardId then
                                                 { c | category = str }
-
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateCat cardList) createCardModel } ! []
+                                        { model | page = Homepage (List.map updateCat cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -357,11 +358,10 @@ update msg model =
                                         updateImgUrl c =
                                             if c.cardId == card.cardId then
                                                 { c | imageUrl = str }
-
                                             else
                                                 c
                                     in
-                                    { model | page = Homepage (List.map updateImgUrl cardList) createCardModel } ! []
+                                        { model | page = Homepage (List.map updateImgUrl cardList) createCardModel } ! []
 
                                 _ ->
                                     ignoreOtherCases model
@@ -379,11 +379,26 @@ update msg model =
                                         updateCollOrder o =
                                             if o.item.orderId == order.orderId then
                                                 { o | collapsed = not o.collapsed }
-
                                             else
                                                 o
                                     in
-                                    { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c d } ! []
+                                        { model | page = AdminPage a b (List.map updateCollOrder collapsibleOList) c d } ! []
+
+                                _ ->
+                                    ignoreOtherCases model
+
+                        ClickChangeCardViewCardQuantity str ->
+                            case model.page of
+                                CardView card quantity ->
+                                    case String.toInt str of
+                                        Ok val ->
+                                            if val > 0 then
+                                                { model | page = CardView card val } ! []
+                                            else
+                                                ignoreOtherCases model
+
+                                        Err _ ->
+                                            ignoreOtherCases model
 
                                 _ ->
                                     ignoreOtherCases model
