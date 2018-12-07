@@ -100,7 +100,7 @@ createCard title imageUrl price costToProduce category hook =
 
 updateCard : Card -> (Result String String -> msg) -> Cmd msg
 updateCard c hook =
-    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard c.cardId c.title c.imageUrl c.price c.costToProduce c.category) JD.string
+    putRequest (fullPath ++ "cards/") (jsonBody <| encodeUpdatedCard c.cardId c.title c.imageUrl (c.price * 100) c.costToProduce c.category) JD.string
         |> Http.send (processResult hook)
 
 
