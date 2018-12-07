@@ -2,6 +2,7 @@ const db = require('../utils/db')
 const knex = require('../knex')
 
 const intId = (req, property) => parseInt(req.params[property], 10)
+const decodeImage = url => url.replace('AlexLovesBrianna', '?')
 
 const formatUser = user => ({
   userId: user.UserID,
@@ -14,7 +15,7 @@ const formatUser = user => ({
 const formatCard = card => ({
   cardId: card.CardID,
   title: card.Title,
-  imageUrl: card.ImageURL,
+  imageUrl: decodeImage(card.ImageURL),
   price: card.Price,
   costToProduce: card.CostToProduce,
   category: card.Category,

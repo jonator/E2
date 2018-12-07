@@ -3,11 +3,13 @@ const knex = require('../knex')
 
 // get the specified id from the req.params
 const intId = (req, property) => parseInt(req.params[property], 10)
+const encodeImage = url => url.replace('?', 'AlexLovesBrianna')
+const decodeImage = url => url.replace('AlexLovesBrianna', '?')
 
 const formatCard = card => ({
   cardId: card.CardID,
   title: card.Title,
-  imageUrl: card.ImageURL,
+  imageUrl: decodeImage(card.ImageURL),
   price: card.Price,
   costToProduce: card.CostToProduce,
   category: card.Category,
@@ -16,8 +18,9 @@ const formatCard = card => ({
 exports.createCard = async (req, res) => {
   // const newCard = await db.insertCard(req.body)
   const { title, imageUrl, price, costToProduce, category } = req.body
+  const encodedUrl = encodeImage(imageUrl)
   const dirtyCard = await knex.exec(
-    `createCard @title = '${title}' , @url = '${imageUrl}' , @price = ${price} , @cost = ${costToProduce} , @category = '${category}'`
+    `createCard @title = '${title}' , @url = '${encodedUrl}' , @price = ${price} , @cost = ${costToProduce} , @category = '${category}'`
   )
   if (!dirtyCard[0]) {
     return res.status(404).send()
@@ -35,8 +38,9 @@ exports.getCards = async (req, res) => {
 
 exports.updateCard = async (req, res) => {
   const { cardId, title, imageUrl, price, costToProduce, category } = req.body
+  const encodedUrl = encodeImage(imageUrl)
   const dirtyCard = await knex.exec(
-    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = '${imageUrl}' , @price = ${price}, @cost = ${costToProduce} , @category = '${category}'`
+    `updateCard @CardID = ${cardId} , @title = '${title}' , @url = N'${encodedUrl}' , @price = ${price}, @cost = ${costToProduce} , @category = '${category}'`
   )
   if (!dirtyCard[0]) {
     return res.status(404).send('Card not found')

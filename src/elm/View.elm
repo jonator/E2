@@ -333,9 +333,9 @@ adminPage totalSales orderCount orderList totalProfit cardsSoldByCategory =
     div [ Attrs.class "admin" ]
         [ text "Administrator"
         , div [ Attrs.class "total-sales" ]
-            [ text <| (++) "Total Sales: $" <| toString totalSales ]
+            [ text <| (++) "Total Sales: $" <| toString ((toFloat totalSales) / 100) ]
         , div [ Attrs.class "total-profit" ]
-            [ text <| (++) "Total Profit: $" <| toString totalProfit ]
+            [ text <| (++) "Total Profit: $" <| toString ((toFloat totalProfit) / 100) ]
         , div [ Attrs.class "order-count" ]
             [ text <| (++) "Order Count: " <| toString orderCount ]
         , cardsByCategoryStats cardsSoldByCategory

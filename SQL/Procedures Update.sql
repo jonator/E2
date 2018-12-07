@@ -1,4 +1,4 @@
-ALTER PROCEDURE createCard @title nvarchar(64), @url nvarchar(64), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
+ALTER PROCEDURE createCard @title nvarchar(64), @url nvarchar(128), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
 AS
 DECLARE @newCard TABLE (CardID int)
 INSERT Project.Card(Title, ImageURL, Price, CostToProduce, CategoryID)
@@ -26,7 +26,7 @@ FROM Project.Card C
 WHERE C.CardID = (SELECT CardID from @newCard);
 GO
 
-ALTER PROCEDURE updateCard @CardID int, @title nvarchar(64), @url nvarchar(64), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
+ALTER PROCEDURE updateCard @CardID int, @title nvarchar(64), @url nvarchar(128), @price nvarchar(8), @cost nvarchar(8), @category nvarchar(30)
 AS
 UPDATE Project.Card
 SET Title = @title,
