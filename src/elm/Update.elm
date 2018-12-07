@@ -154,12 +154,8 @@ update msg model =
                                           , getCards HandleCards
                                           ]
 
-                                Err e ->
-                                    let
-                                        _ =
-                                            Debug.log "ERROR" e
-                                    in
-                                        ignoreOtherCases model
+                                Err _ ->
+                                    ignoreOtherCases model
 
                         HandleGetAllOrders res ->
                             case res of
