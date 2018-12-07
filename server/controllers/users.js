@@ -29,12 +29,14 @@ const formatUser = user => ({
 exports.authenticateUser = async (req, res) => {
   const { email, password } = req.params
   const dirtyUser = await knex.exec(`authenticateUser @email = '${email}', @password = '${password}'`)
+  if (!dirtyUser[0]) {
+    return res.status(401).send('Invalid username/password supplied')
+  }
   const user = formatUser(dirtyUser[0])
   // const user = await db.authenticateUser({ email, password })
   if (user) {
     return res.json(user)
   }
-  return res.status(401).send()
 }
 
 exports.createUser = async (req, res) => {
@@ -43,11 +45,12 @@ exports.createUser = async (req, res) => {
     const dirtyUser = await knex.exec(
       `createUser @FN = '${firstName}', @LN = '${lastName}', @Email = '${email}', @Password = '${password}'`
     )
-    const createdUser = formatUser(dirtyUser[0])
-    // const createdUser = await db.insertUser(req.body)
-    if (createdUser) {
-      return res.json(createdUser)
+    if (!dirtyUser[0]) {
+      return res.status(500).send()
     }
+    const createdUser = formatUser(dirtyUser[0])
+    return res.json(createdUser)
+    // const createdUser = await db.insertUser(req.body)
   } catch (err) {
     if (err.originalError.info.message.indexOf('Violation of UNIQUE KEY constraint') > -1) {
       return res.status(400).send('that email address already exists')
@@ -60,8 +63,8 @@ const formatCartItem = cartItem => ({
     cardId: cartItem.CardID,
     title: cartItem.Title,
     imageUrl: cartItem.ImageURL,
-    price: cartItem.Price,
-    costToProduce: cartItem.CostToProduce,
+    price: cartItem.Price / 100,
+    costToProduce: (cartItem.CostToProduce / 100) * 2,
     category: cartItem.Category,
   },
   quantity: cartItem.Quantity,

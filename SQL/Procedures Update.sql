@@ -16,7 +16,7 @@ VALUES
         )
     );
 
-SELECT C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100,
+SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
 	(
 		SELECT CC.Category
 		FROM Project.CardCategory CC
@@ -41,7 +41,7 @@ SET Title = @title,
 		)
 WHERE CardID = @CardID;
 
-SELECT C.CardID, C.Title, C.ImageURL, C.Price / 100, C.CostToProduce / 100,
+SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
 	(
 		SELECT CC.Category
 		FROM Project.CardCategory CC
@@ -173,7 +173,7 @@ DECLARE @Sales INT =
 		FROM Project.OrderLines OL
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
-SELECT @Sales / 100 AS total
+SELECT @Sales AS total
 GO
 
 --Returns the total profits after the cost to produce each card
@@ -192,5 +192,18 @@ DECLARE @Cost INT =
 		FROM Project.OrderLines OL
 			INNER JOIN Project.Card C ON C.CardID = OL.CardID
 	)
-SELECT (@Sales - @Cost) / 100 AS total
+SELECT (@Sales - @Cost) AS total
+GO
+
+ALTER PROCEDURE getAllCards
+AS
+SELECT C.CardID, C.Title, C.ImageURL, C.Price, C.CostToProduce,
+	(
+		SELECT CC.Category
+		FROM Project.CardCategory CC
+		WHERE C.CategoryID = CC.CategoryID
+	) AS Category
+FROM Project.Card C
+WHERE C.IsDeleted = 0
+ORDER BY C.CardID ASC
 GO

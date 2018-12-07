@@ -39,8 +39,8 @@ CREATE TABLE Project.Card
 	CardID INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
 	Title NVARCHAR(64) NOT NULL,
 	ImageURL NVARCHAR(64) NOT NULL DEFAULT N'i.imgur.com/lixxOdP.jpg',
-	Price DECIMAL(8,2) NOT NULL,
-	CostToProduce DECIMAL(8,2) NOT NULL,
+	Price INT NOT NULL,
+	CostToProduce INT NOT NULL,
 	CategoryID INT NOT NULL REFERENCES Project.CardCategory(CategoryID)
 
 	UNIQUE(Title ASC)
