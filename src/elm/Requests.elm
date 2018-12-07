@@ -1,38 +1,38 @@
-module Requests exposing
-    ( apiPath
-    , authenticateUser
-    , authority
-    , createCard
-    , createCartItem
-    , createOrder
-    , createUser
-    , deleteCard
-    , deleteCartItem
-    , deleteRequest
-    , fullPath
-    , getAllOrders
-    , getCards
-    , getCardsSoldByCategory
-    , getCartItems
-    , getTotalProfit
-    , getTotalSales
-    , httpErrToString
-    , processCartItemResult
-    , processOrderListResult
-    , processResult
-    , processUpdateCartItem
-    , processUserResult
-    , putRequest
-    , registerUser
-    , updateCard
-    , updateCartItem
-    )
+module Requests
+    exposing
+        ( apiPath
+        , authenticateUser
+        , authority
+        , createCard
+        , createCartItem
+        , createOrder
+        , createUser
+        , deleteCard
+        , deleteCartItem
+        , deleteRequest
+        , fullPath
+        , getAllOrders
+        , getCards
+        , getCardsSoldByCategory
+        , getCartItems
+        , getTotalProfit
+        , getTotalSales
+        , httpErrToString
+        , processCartItemResult
+        , processOrderListResult
+        , processResult
+        , processUpdateCartItem
+        , processUserResult
+        , putRequest
+        , registerUser
+        , updateCard
+        , updateCartItem
+        )
 
 import Coders exposing (..)
 import Http exposing (Body, Error(..), Request, emptyBody, expectJson, expectString, jsonBody, request)
 import Json.Decode as JD exposing (Decoder, field)
 import Types exposing (..)
-
 
 
 --https://package.elm-lang.org/packages/elm-lang/http/latest/Http
@@ -227,8 +227,22 @@ getCardsSoldByCategory hook =
 
 createOrder : Int -> (Result String String -> msg) -> Cmd msg
 createOrder userId hook =
-    Http.post (fullPath ++ "orders/" ++ toString userId) Http.emptyBody JD.string
-        |> Http.send (processResult hook)
+    let
+        _ =
+            Debug.log "REQUEST" (fullPath ++ "orders/" ++ toString userId)
+    in
+        Http.post (fullPath ++ "orders/" ++ toString userId) Http.emptyBody JD.value
+            |> Http.send (processValue hook)
+
+
+processValue : (Result String String -> msg) -> Result Http.Error JD.Value -> msg
+processValue message res =
+    case res of
+        Ok _ ->
+            message <| Ok "ok"
+
+        Err httpError ->
+            message <| Err <| httpErrToString httpError
 
 
 

@@ -10,6 +10,12 @@ body {
   grid-template-rows: 75px 1fr;
 }
 
+.msg {
+  font-size: 20px;
+  text-align: center;
+  padding: 200px;
+}
+
 .button {
   border: 1px solid black;
   font-size: 20px;
@@ -93,8 +99,16 @@ body {
   padding: 50px 0;
   .actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2fr 1fr 2fr;
     grid-column-gap: 50px;
+  }
+  .quantity {
+    .label {
+      padding-top: 15px;
+    }
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    grid-column-gap: 10px;
   }
 }
 
